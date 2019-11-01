@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="yearn">
+
+
+
+<meta name="keywords" content="0day">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sql注入 - 0day审计案例">
+<meta property="og:url" content="https://yearn.online/2019/06/01/Sql注入 - 0day审计案例/index.html">
+<meta property="og:site_name" content="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/5e2bebe9ca4f35ce555a9050c78793e1.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/4670cb5c1130700601c5803260b15478.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/cb2945b508579416d3d065da51279057.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/fbd20ccb2c1fcd1b84b7b257dafa4785.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/cbe3778c742c93b08cc8d97fab7c0076.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/0073ee54e66c3553cbb7b4239214193a.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/0ca538e7c623a5f1e2d79b1d68dd038c.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/5c616750600e3b0f354911ebfa1d5eb1.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/87ad1edbde5ab662a0d666c474bd26e3.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/5b28efe53081f9e27e30e71722f340a8.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/392eb522a0defce9d44a860849422da3.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/a06a4e198098153a8a7d1cd08bbbafb9.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/ad20a39f7924806f6b44d8a9b8e87071.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/38b8f3246e005b4b914e9c2a19f1d6d2.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/ea65124356bcaf8d263738b852a1a3d5.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/d5236530507f6f6bf3c0364f4b19c53b.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/dd3a4af43037dbb88b0bd810e540ef26.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/b236b2d5d9d96f84995b105f76a9b937.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/4394a38d234e3b39ac6d96ccaf8c4db2.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/8c021c6867f9545da5564f8fb2b992be.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/a3f1d3c4b2ade11ebd868edb74f56926.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/da85e37b93eab0ffb7ef4b95fc5804e0.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/a538668622fecd029577a16c70f78519.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/c9a43b60b16d76cecafb70a53b8853b1.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/17e6450870dc76479c17e63059f1156e.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/c90e594fac2006a8285491cfd3af8d48.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/e6e5757a538e2f7f804dd5dfbb78185a.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/8dddeefa261a6385eddafa50f9bbfe0b.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/2a65758d52b7a97a40c5f97b580a354b.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/0d98c60e2b98c9656f05cb4b5f756d8f.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/7e3df9254fdbca4de7e39e05a48f5625.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/7c3832f601c433283f4574388486c6b3.png">
+<meta property="og:image" content="https://www.zkaq.org/upload/userfile/131/ce7be7acc1d677eb1b6822f92aff0df9.png">
+<meta property="og:updated_time" content="2019-10-06T03:54:03.389Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Sql注入 - 0day审计案例">
+<meta name="twitter:image" content="https://www.zkaq.org/upload/userfile/131/5e2bebe9ca4f35ce555a9050c78793e1.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Sql注入 - 0day审计案例 | 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?true";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">yearn</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>Menu</li>
+                        <li>Tags</li>
+                        
+                        <li>Friends</li>
+                        
+                        
+                        <li>About Me</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/0day/">0day</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/benbenben/">benbenben</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/waf/">waf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/今天很沙漠/">今天很沙漠</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/冷淡/">冷淡</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/南岸/">南岸</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/啊哈哈/">啊哈哈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大雨连绵/">大雨连绵</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气不错，就是眼睛睁不开/">天气不错，就是眼睛睁不开</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气好呀/">天气好呀</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气真好/">天气真好</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很棒/">就很棒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很烦/">就很烦</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/打字很累/">打字很累</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/无聊/">无聊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/春困/">春困</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗/">暗</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漏洞/">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漫步/">漫步</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/黑夜的柒佰/">黑夜的柒佰</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://xiaoleng.space/">xiaoleng</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于web</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">yearn</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">yearn</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="Tags" friends="Friends" about="About Me"/>
+</nav>
+      <div class="body-wrap"><article id="post-Sql注入 - 0day审计案例" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/06/01/Sql注入 - 0day审计案例/" class="article-date">
+      <time datetime="2019-06-01T06:45:21.000Z" itemprop="datePublished">2019-06-01</time>
+</a>
+
+
+
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Sql注入 - 0day审计案例
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/0day/">0day</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p><excerpt in index> </excerpt></p>
+<ul>
+<li><a id="more"></a>
+<the rest of contents文>
+
+</the></li>
+</ul>
+<h1 id="适合萌新的代码审计-BlueCMS-v1-6-sp1"><a href="#适合萌新的代码审计-BlueCMS-v1-6-sp1" class="headerlink" title="适合萌新的代码审计-BlueCMS v1.6 sp1**"></a>适合萌新的代码审计-BlueCMS v1.6 sp1**</h1><p><strong>接下来是聂风大哥的文章</strong></p>
+<p><strong>## 0x01 环境搭建</strong></p>
+<p><strong>Phpstudy</strong></p>
+<p><strong>BlueCMS v1.6 sp1源码</strong></p>
+<p><strong>代码审计工具（Seay源代码审计系统）</strong></p>
+<p><strong>0x02 代码审计过程</strong></p>
+<p><strong>拿到一个CMS，有诸多审计方法，我这里的审计方法是黑盒+白盒测试，偏黑盒较多的代码审计。拿到代码后我们应该先对其进行功能点的分析，看一看该CMS存在哪些功能，因为我们寻找漏洞，肯定是从网站中的正常功能进行测试，这是黑盒测试的一个方法，挖掘漏洞的核心我认为在于传参，知道每个传参的意义是不是就等于知道了代码会做什么，要做什么呢？</strong></p>
+<p><strong>这是我总结的BlueCMS v1.6 sp1的功能点</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/5e2bebe9ca4f35ce555a9050c78793e1.png" alt="img"></strong> </p>
+<hr>
+<p><strong>正常而言，我们先将CMS进行一个安装，正常而言CMS的源码放入web目录下后我们会访问install目录，然后进行安装。安装完后我们是不是应该以安全工程师的身份去想一想，我们是否能够再次访问install目录，进行重新安装呢？如果能够进行重新安装，是不是就可以将整个网站的数据全部重装，然后拿到设置新的管理员账号，然后通过后台拿到webshell?</strong></p>
+<p><strong>然后我们去访问该页面，正常，可以重装</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/4670cb5c1130700601c5803260b15478.png" alt="img"></strong> </p>
+<p><strong>于是我们审计出了代码的第一个问题，可以重复安装呢！是不是很简单？</strong></p>
+<p><strong>然后我们再来看这个网站，一般而言网站有展示类和功能类。</strong></p>
+<p><strong>展示类（比如新闻站、门户站）</strong></p>
+<p><strong>功能类（比如商城、OA、系统）</strong></p>
+<p><strong>但是无论是展示类还是功能如果我们可以拿到一个普通用户的权限是不是更加容易渗透测试？测试的点是不是更多？</strong></p>
+<p><strong>那么我们去注册一个账户吧！</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/cb2945b508579416d3d065da51279057.png" alt="img"></strong> </p>
+<p><strong>注册一个账号，我们想一想，是不是可以尝试进行一个XSS，我们先注册一个账号，然后抓包看看，然后我们输入了用户名后，我们发现burp抓了一个包</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/fbd20ccb2c1fcd1b84b7b257dafa4785.png" alt="img"></strong> </p>
+<p><strong>很明显这个数据包是用来检测你的用户名是否有人注册过，那么我们是不是可以通过爆破user_name传参进行爆破出用户名。（爆破出用户名后爆破密码更容易）</strong></p>
+<p><strong>然后填完所有内容，提交，然后抓到了数据包，我们发现是被提交到user.php</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/cbe3778c742c93b08cc8d97fab7c0076.png" alt="img"></strong> </p>
+<p><strong>然后我们通过代码审计工具去找那个文件</strong></p>
+<p><strong>在传参中我们看到了我自己输入的账号|密码|邮箱|验证码，然后最后出现了一个act传参，打开这个user.php我们可以看出这个文件有好几个功能，act就是决定我的数据包是干什么的传参，于是乎复制这个传参值去源码中寻找这个传参</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/0073ee54e66c3553cbb7b4239214193a.png" alt="img"></strong> </p>
+<p><strong>这段源码就是关于你的注册，我们可以看到INSERT INTO 插入，然后我们看是否存在过滤，很明显这里没有过滤，那么我们尝试进行XSS以及SQL注入。</strong></p>
+<p><strong>我们就先看XSS。</strong></p>
+<p><strong>先抓包，正常的填写注册，然后将数据包拦截（这是为了防止前端检测）</strong></p>
+<p><strong>修改数据包，加入XSS语句，我是在邮件的地方加的。</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/0ca538e7c623a5f1e2d79b1d68dd038c.png" alt="img"></strong> </p>
+<p><strong>成功弹窗</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/5c616750600e3b0f354911ebfa1d5eb1.png" alt="img"></strong> </p>
+<p><strong>事实证明这里存在一个存储型XSS，然后我们再去看看SQL注入</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/87ad1edbde5ab662a0d666c474bd26e3.png" alt="img"></strong> </p>
+<p><strong>这很明显是他的SQL语句，然后我们尝试使用updatexml的报错</strong></p>
+<p><strong>构建下语句。</strong></p>
+<p><strong>‘ or updatexml(1,concat(0x7e,(SELECT database())),1),1,1)#</strong></p>
+<p><strong>然后执行，居然成功执行了。没有过滤？居然能成功执行，说明单引号没有起作用，是不是存在魔术引号？试试宽字节！</strong></p>
+<p><strong>%df’ or updatexml(1,concat(0x7e,(SELECT database())),1),1,1)#</strong></p>
+<p><strong>然后成功报错</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/5b28efe53081f9e27e30e71722f340a8.png" alt="img"></strong> </p>
+<p><strong>很明显这里存在SQL注入，但是这里神奇的很，我这里报错说语法错误，我直接去本地执行却没问题！源码中对报错做了限制。只能通过盲注来解决，难受！</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/392eb522a0defce9d44a860849422da3.png" alt="img"></strong> </p>
+<p><strong>我们仔细思考，这里是一个插入语句，那么我们是不是可以尝试插入多行数据，我们通过语句构建，再建立一个用户，然后用子查询填充邮箱处，然后我们登陆这个账号是不是就可以看到邮箱字段里面的内容，走，说干就干！！</strong></p>
+<p><strong>构建语句：</strong></p>
+<p><strong>%df’,1,1),(100,0x6162717765,md5(123456),(select database()),1,1)#</strong></p>
+<p><strong>闭合原本的语句，然后再插入一条数据，然后执行，成功执行了！！</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/a06a4e198098153a8a7d1cd08bbbafb9.png" alt="img"></strong> </p>
+<p><strong>数据被插入了，走，登陆账号</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/ad20a39f7924806f6b44d8a9b8e87071.png" alt="img"></strong> </p>
+<p><strong>很明显，库名在邮箱处显示了，与似乎我们可以通过这样的方法利用这个点！！</strong></p>
+<p><strong>我们结束了注册功能在看看登录功能，登录处会不会存在SQL注入？</strong></p>
+<p><strong>老样子，登录，然后抓包看传参到那个文件</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/38b8f3246e005b4b914e9c2a19f1d6d2.png" alt="img"></strong> </p>
+<p><strong>还是那个文件，就是act变为了index_login</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/ea65124356bcaf8d263738b852a1a3d5.png" alt="img"></strong> </p>
+<p><strong>登录还定义了函数，右键函数追踪一下</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/d5236530507f6f6bf3c0364f4b19c53b.png" alt="img"></strong> </p>
+<p><strong>还是老样子，没有任何过滤，那么试试万能密码吧</strong></p>
+<p><strong>payload：%df’) or 1=1#</strong></p>
+<p><strong>万能密码成功登录</strong></p>
+<p><strong>万能密码就是存在POST类型的SQL注入，可以尝试使用SQLMAP</strong></p>
+<p><strong>我是跑数据包，在pwd字段</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/dd3a4af43037dbb88b0bd810e540ef26.png" alt="img"></strong> </p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/b236b2d5d9d96f84995b105f76a9b937.png" alt="img"></strong> </p>
+<p><strong>然后登录后修改资料处也存在SQL注入和XSS</strong></p>
+<hr>
+<p><strong>然后我们看到了别人的文章，我们看到我们可以评论</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/4394a38d234e3b39ac6d96ccaf8c4db2.png" alt="img"></strong> </p>
+<p><strong>然后果断评论,我尝试了不登录也是可以评论，然后我们抓包看看吧！</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/8c021c6867f9545da5564f8fb2b992be.png" alt="img"></strong> </p>
+<p><strong>去看看这个文件</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/a3f1d3c4b2ade11ebd868edb74f56926.png" alt="img"></strong> </p>
+<p><strong>这里似乎有一个过滤</strong></p>
+<p><strong>Htmlspecialchars会将尖括号转化为HTML实体，那么不能出现尖括号</strong></p>
+<p><strong>然后呢这里我们来玩一个骚套路</strong></p>
+<p><strong>我们看到传参里面有ip对吗？</strong></p>
+<p><strong>留言记录IP这个是留言系统中经常存在的套路。那我们看到了他实际上插入了ip的值是特意拼接是，是由这个自定义函数设定getip()</strong></p>
+<p><strong>走，我们去找找这个函数的定义</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/da85e37b93eab0ffb7ef4b95fc5804e0.png" alt="img"></strong> </p>
+<p><strong>找到了定义的函数，这里有一个getenv，实际上就是获取系统的环境变量</strong></p>
+<p><strong>第一个HTTP_CLIENT_IP这个环境变量没有成标准，很多服务器完全没法获取</strong></p>
+<p><strong>第二个X-Forwarded-For 这个东西可以通过HTTP请求头来修改。</strong></p>
+<p><strong>那么问题来了!</strong></p>
+<p><strong>我们似乎可以控制请求头中的X-Forwarded-For控制ip的传参，ip的传参会直接被拼凑到SQL语句，走！我们SQL注入去（类似的问题挺多的，黑盒白盒我都遇到过）</strong></p>
+<p><strong>设置X-Forwarded-For为1’#</strong></p>
+<p><strong>然后直接报错了</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/a538668622fecd029577a16c70f78519.png" alt="img"></strong></p>
+<p><strong>因为这个不是输入，连宽字节都省了，如果这里没有宽字节注入就可以这样来注入.</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/c9a43b60b16d76cecafb70a53b8853b1.png" alt="img"></strong> </p>
+<hr>
+<p><strong>里面还有些SQL注入和XSS的漏洞我就不一一列举了。</strong></p>
+<p><strong>我们看一点不一样的</strong></p>
+<p><strong>在后台我看到了可以备份数据库</strong></p>
+<p> <strong><img src="https://www.zkaq.org/upload/userfile/131/17e6450870dc76479c17e63059f1156e.png" alt="img"></strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/c90e594fac2006a8285491cfd3af8d48.png" alt="img"></strong> </p>
+<p><strong>发现他是按照日期生成备份文件，我们尝试爆破地址</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/e6e5757a538e2f7f804dd5dfbb78185a.png" alt="img"></strong> </p>
+<p><strong>然后成功访问，里面有管理员账号密码（密码就是MD5，解密下就行）</strong></p>
+<hr>
+<p><strong>我们再来讲一个更有深度的漏洞–文件包含</strong></p>
+<p><strong>还记得前面看了好几次的user.php吗?</strong></p>
+<p><strong>通过全局寻找include,我发现里面有一些有趣的东西</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/8dddeefa261a6385eddafa50f9bbfe0b.png" alt="img"></strong> </p>
+<p><strong>我们可以通过传参pay来控制包含的文件。</strong></p>
+<p><strong>我们先尝试正常操作让act传参pay</strong></p>
+<p><strong>然后我发现这个传参是在充值中心的购买充值卡的地方的选择支付方式</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/2a65758d52b7a97a40c5f97b580a354b.png" alt="img"></strong> </p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/0d98c60e2b98c9656f05cb4b5f756d8f.png" alt="img"></strong> </p>
+<p><strong>然后我们先在网站根目录留一个1.txt，内容写</strong></p>
+<p><strong>&lt;?php phpinfo();?&gt;</strong></p>
+<p><strong>然后尝试拼接</strong></p>
+<p><strong>通过../跳转到上层目录,但是我们发现这个语句后面有一个index.php的拼接。那该怎么办妮？在这里我们可以尝试一个字符串截断的方法（Windows的路径不能超过256个字符）</strong></p>
+<p><strong>那么我们是不是可以尝试在传参的后面加点进行阶段，因为点最后会被windows给处理掉，但是填充了点之后，只会保留包含前面的1.txt，在传参后的index.php因为路径超过256个字符后的东西都会被舍弃，于是乎我们直接传参后加256个点就可以截断了</strong></p>
+<hr>
+<hr>
+<p><strong>Payload:</strong><br><strong>pay=../../1.txt………………………………………………………………………………………………………………………………………………………………………………………………………………………………….</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/7e3df9254fdbca4de7e39e05a48f5625.png" alt="img"></strong> </p>
+<p><strong>那么我们该如何利用，看看有没有地方可以上传，找到头像上传，然后上传图片马</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/7c3832f601c433283f4574388486c6b3.png" alt="img"></strong> </p>
+<p><strong>然后包含这个文件就行</strong></p>
+<p><strong><img src="https://www.zkaq.org/upload/userfile/131/ce7be7acc1d677eb1b6822f92aff0df9.png" alt="img"></strong> </p>
+<p><strong>0x03总结</strong>  </p>
+<p><strong>其实该CMS所存在的漏洞不仅仅只有这些，我文章中的这些也只是一个抛砖引玉，只是说出一个更适合代码基础薄弱的同学进行代码审计的方法，如果我文章中有什么写的可以再改进的地方，可以随时联系我！谢谢大家花费了时间来读在下的粗鄙小文，谢谢大家</strong></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>Title:</span><a href="/2019/06/01/Sql注入 - 0day审计案例/">Sql注入 - 0day审计案例</a></p>
+        <p><span>Author:</span><a href="/" title="Back to Homepage">yearn</a></p>
+        <p><span>Created:</span>2019-06-01, 14:45:21</p>
+        <p><span>Updated:</span>2019-10-06, 11:54:03</p>
+        <p>
+            <span>Full URL:</span><a class="post-url" href="/2019/06/01/Sql注入 - 0day审计案例/" title="Sql注入 - 0day审计案例">https://yearn.online/2019/06/01/Sql注入 - 0day审计案例/</a>
+            <span class="copy-path" data-clipboard-text="From https://yearn.online/2019/06/01/Sql注入 - 0day审计案例/　　By yearn" title="Copy Article&#39;s Link &amp; Author"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>License:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"CC BY-NC-SA 4.0"</a> Keep Link &amp; Author if Distribute.
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2019/09/07/waf/">
+                    waf
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2019/05/28/支付漏洞/">
+                    支付漏洞
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#适合萌新的代码审计-BlueCMS-v1-6-sp1"><span class="toc-number">1.</span> <span class="toc-text">适合萌新的代码审计-BlueCMS v1.6 sp1**</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="Hide"  title="Show or Hide Table of Contents">
+
+    <script>
+        yiliaConfig.toc = ["Hide", "Show", !!"true"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"Sql注入 - 0day审计案例　| 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2019/06/01/Sql注入 - 0day审计案例/" data-title="Sql注入 - 0day审计案例" data-url="https://yearn.online/2019/06/01/Sql注入 - 0day审计案例/"></div>
+    <script>
+        var duoshuoQuery = {short_name:""};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/09/07/waf/" title="Pre: waf">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="Mini Archives"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/05/28/支付漏洞/" title="Next: 支付漏洞">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/11/02/PHP远程代码执行漏洞预警（CVE-2019-11043）/">PHP远程代码执行漏洞预警（CVE-2019-11043）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/01/变量覆盖漏洞-1/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/30/XXE-实体注入 -1/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/29/XXE漏洞(CVE-2019-2888)分析/">WebLogic EJBTaglibDescriptor XXE漏洞(CVE-2019-2888)分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/28/SSRF-服务器端请求伪造-1/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/26/探究if条件语句引发的两个Web漏洞/">探究if条件语句引发的两个Web漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/25/文件上传漏洞-解析、验证伪造三/">文件上传漏洞----解析、验证伪造 三</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/文件上传漏洞-解析、验证伪造二/">文件上传漏洞----解析、验证伪造 二</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/22/WordPress =5.2.3/">WordPress <=5.2.3：如何查看未授权文章</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/21/文件上传漏洞-解析、验证伪造一/">文件上传漏洞----解析、验证、伪造 一</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/19/CSP绕过思路及总结/">CSP绕过思路及总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/18/CSRF-1/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/PCRE绕过/">PCRE绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/16/Dom-Based-XSS-1/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/15/储存型XSS-1/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/反序列化导致任意代码执行/">Typecho install.php 反序列化导致任意代码执行</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/XSS的原理分析与解剖-1/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Linux提权/">Linux提权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Oracle注入-—-报错注入/">Oracle注入 — 报错注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/08/MSSQL注入-—-反弹注入/">MSSQL注入 — 反弹注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/06/MySQL注入-—-Dns-注入/">MySQL注入 — Dns 注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/03/通过Shodan发现目标应用Marathon服务的RCE漏洞/">通过Shodan发现目标应用Marathon服务的RCE漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/DNS隧道流量分析/">DNS隧道流量分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/Acccess偏移注入-1/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/WordPress插件中的XSS漏洞的复现分析与利用/">WordPress插件中的XSS漏洞的复现分析与利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/宽字节注入-1/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/25/盲注-1/">盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/MS08-067如何利用/">MS08_067如何利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/POST注入-HEAD注入/">POST注入/HEAD注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/SQL注入的原理分析/">SQL注入的原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/21/正则表达式/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/20/后端基础SQL—高级查询与子查询/">后端基础SQL—高级查询与子查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/无需登录绕过waf可union-select跨表查询/">无需登录绕过waf可union-select跨表查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/waf/">waf</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/01/Sql注入 - 0day审计案例/">Sql注入 - 0day审计案例</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/28/支付漏洞/">支付漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/平行越权、垂直越权/">平行越权、垂直越权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/验证码绕过、密码找回漏洞/">验证码绕过、密码找回漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/unserialize反序列化漏洞/">unserialize反序列化漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/本地包含与远程包含/">本地包含与远程包含</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/23/变量覆盖漏洞/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/21/SSRF-服务器端请求伪造/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/XXE-实体注入/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/文件上传漏洞-解析、验证伪造（三）/">文件上传漏洞----解析、验证伪造（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/18/文件上传漏洞-解析、验证伪造（二）/">文件上传漏洞----解析、验证伪造（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/09/文件上传漏洞-解析、验证伪造（一）/">文件上传漏洞----解析、验证、伪造（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/08/CSRF/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/02/Dom-Based-XSS/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/01/储存型XSS/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/28/XSS的原理分析与解剖/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/27/Oracle报错注入/">Oracle注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/26/MSQL反弹注入0-0/">MSQL反弹注入0.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/25/Acccess偏移注入/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/MYSQL-Dns注入/">MYSQL-Dns注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/宽字节注入/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/盲注/">MYSQL注入天书之盲注讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/POST注入原理分分析/">POST注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/sql注入原理分析/">sql注入原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/正则小试牛刀/">正则小试牛刀</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/测试哦！/">测试哦！</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019 yearn
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="A fast, simple &amp; powerful blog framework">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="Another simple and elegant theme for Hexo  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="Site Visitors"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>|</span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="Page Hits"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+</footer>
+    </div>
+    
+    <script src="/js/GithubRepoWidget.js"></script>
+
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="Back to Top"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="Comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="Go to Bottom"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+             github: ".github-widget a", 
+             title: "a.article-title, .article-more-link a", 
+             post: ".article-entry a[href], .copyright a[href]", 
+             tags: ".article-tag a", 
+             categories: ".article-category a, a.tag-list-link", 
+             articleNav: "#article-nav a, #post-nav-button a", 
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+             menu: ".header-menu a", 
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?0c58a1486de42ac6cc1c59c7d98ae887"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":150},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

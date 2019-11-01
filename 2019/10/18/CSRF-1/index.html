@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="yearn">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSRF">
+<meta property="og:url" content="https://yearn.online/2019/10/18/CSRF-1/index.html">
+<meta property="og:site_name" content="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-10-20T05:30:13.053Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CSRF">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>CSRF | 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?true";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">yearn</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>Menu</li>
+                        <li>Tags</li>
+                        
+                        <li>Friends</li>
+                        
+                        
+                        <li>About Me</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/0day/">0day</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/benbenben/">benbenben</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/waf/">waf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/今天很沙漠/">今天很沙漠</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/冷淡/">冷淡</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/南岸/">南岸</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/啊哈哈/">啊哈哈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大雨连绵/">大雨连绵</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气不错，就是眼睛睁不开/">天气不错，就是眼睛睁不开</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气好呀/">天气好呀</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气真好/">天气真好</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很棒/">就很棒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很烦/">就很烦</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/打字很累/">打字很累</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/无聊/">无聊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/春困/">春困</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗/">暗</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漏洞/">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漫步/">漫步</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/黑夜的柒佰/">黑夜的柒佰</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://xiaoleng.space/">xiaoleng</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于web</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">yearn</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">yearn</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="Tags" friends="Friends" about="About Me"/>
+</nav>
+      <div class="body-wrap"><article id="post-CSRF-1" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/10/18/CSRF-1/" class="article-date">
+      <time datetime="2019-10-18T03:31:41.000Z" itemprop="datePublished">2019-10-18</time>
+</a>
+
+
+
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CSRF
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <excerpt in index> 
+
+<ul>
+<li><a id="more"></a>
+<the rest of contents文>
+
+</the></li>
+</ul>
+<h2 id="一、CSRF是什么"><a href="#一、CSRF是什么" class="headerlink" title="一、CSRF是什么"></a>一、<strong>CSRF是什么</strong></h2><p>首先，来看看CSRF是什么。依据Wikipedia的解释，含义如下：</p>
+<blockquote>
+<p>CSRF（Cross-site request forgery）跨站请求伪造，也被称成为点击攻击或者会话劫持，通常缩写为CSRF或者XSRF，是一种恶意利用终端用户在当前已登录的Web应用程序上执行非本意的操作的攻击方法。XSS利用站点内的信任用户，而CSRF则通过伪装来自受信任用户的请求来利用受信任的网站。</p>
+<p><strong>Wikipedia</strong><a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery" target="_blank" rel="noopener">Cross-site request forgery[1]</a></p>
+</blockquote>
+<p>通俗来讲，CSRF攻击通过在授权用户访问的页面中包含链接或者脚本的方式工作。让我们通过两个例子来对这段晦涩的定义做出解释。</p>
+<ol>
+<li>一个网站用户 Alice 可能正在浏览聊天论坛，而同时另一个用户 Eve 也在此论坛中发布了一个具有 Alice 银行链接的图片消息。设想一下，Eve 编写了一个在 Alice 的银行站点上进行取款的form提交的链接，并将此链接作为图片tag。如果 Alice 的银行在cookie中保存他的授权信息，并且此cookie没有过期，那么当 Alice 的浏览器尝试装载图片时将提交这个取款form和他的cookie，这样在没经 Alice 同意的情况下便授权了这次事务。</li>
+<li>2009年黑客利用Gmail的一个CSRF漏洞，成功获取了好莱坞明星Vanessa Hudgens的独家艳照[2]。其攻击过程非常简单，给该明星的gmail账户发了一封email，标题是某大导演邀请你来看看这个电影，里面有个图片(该图片实际是Gmail转发的URL)，结果她登录Gmail，打开邮件就默默无闻的中招了，所有邮件被转发到黑客的账号。</li>
+</ol>
+<p>通过上面两个例子，可以总结出<strong>CSRF攻击的常见特性</strong>：</p>
+<ul>
+<li>依赖使用用户标识的网站；</li>
+<li>利用网站对用户标识的信任；</li>
+<li>欺骗用户的浏览器发送HTTP请求给目标站点；</li>
+<li>依靠具有<a href="http://en.wikipedia.org/wiki/HTTP#Safe_methods" target="_blank" rel="noopener">side effect</a>[3]的HTTP请求。</li>
+</ul>
+<p><strong>CSRF攻击步骤</strong>如下：</p>
+<ol>
+<li>受害者必须在同一浏览器窗口（即使不是同一tab）内访问并登陆目标站点；</li>
+<li>利用用户有效的Session cookie，从而利用受害者的身份进行恶意操作。</li>
+</ol>
+<h2 id="防御"><a href="#防御" class="headerlink" title="防御"></a><strong>防御</strong></h2><p>那么如何防御呢？大体来说，可以从服务端、客户端和安全设备这三个点来进行防御。</p>
+<h3 id="服务端防御"><a href="#服务端防御" class="headerlink" title="服务端防御"></a>服务端防御</h3><p>目前业界服务端防御CSRF攻击主要有三种策略[7]：验证<code>HTTP Referer</code>字段，在请求地址中添加token并验证，在HTTP头中自定义属性并验证。下面分别简述之。</p>
+<h4 id="1-验证HTTP-Referer字段"><a href="#1-验证HTTP-Referer字段" class="headerlink" title="1. 验证HTTP Referer字段"></a>1. 验证HTTP Referer字段</h4><p>根据HTTP协议，在HTTP头中有一个字段叫Referer，它记录了该HTTP请求的来源地址。在通常情况下，访问一个安全受限页面的请求必须来自于同一个网站。比如某银行的转账是通过用户访问<code>http://bank.test/test?page=10&amp;userID=101&amp;money=10000</code> 页面完成，用户必须先登录<code>bank.test</code>，然后通过点击页面上的按钮来触发转账事件。当用户提交请求时，该转账请求的Referer值就会是转账按钮所在页面的URL（本例中，通常是以<code>bank.test</code>域名开头的地址）。而如果攻击者要对银行网站实施CSRF攻击，他只能在自己的网站构造请求，当用户通过攻击者的网站发送请求到银行时，该请求的Referer是指向攻击者的网站。因此，要防御CSRF攻击，银行网站只需要对于每一个转账请求验证其Referer值，如果是以<code>bank.test</code>开头的域名，则说明该请求是来自银行网站自己的请求，是合法的。如果Referer是其他网站的话，就有可能是CSRF攻击，则拒绝该请求。</p>
+<h4 id="2-在请求地址中添加token并验证"><a href="#2-在请求地址中添加token并验证" class="headerlink" title="2. 在请求地址中添加token并验证"></a>2. 在请求地址中添加token并验证</h4><p>CSRF攻击之所以能够成功，是因为攻击者可以伪造用户的请求，该请求中所有的用户验证信息都存在于Cookie中，因此攻击者可以在不知道这些验证信息的情况下直接利用用户自己的Cookie来通过安全验证。由此可知，抵御CSRF攻击的关键在于：在请求中放入攻击者所不能伪造的信息，并且该信息不存在于Cookie之中。鉴于此，系统开发者可以在HTTP请求中以参数的形式加入一个随机产生的token，并在服务器端建立一个拦截器来验证这个token，如果请求中没有token或者token内容不正确，则认为可能是CSRF攻击而拒绝该请求。</p>
+<h4 id="3-在HTTP头中自定义属性并验证"><a href="#3-在HTTP头中自定义属性并验证" class="headerlink" title="3. 在HTTP头中自定义属性并验证"></a>3. 在HTTP头中自定义属性并验证</h4><p>自定义属性的方法也是使用token并进行验证，和前一种方法不同的是，这里并不是把token以参数的形式置于HTTP请求之中，而是把它放到HTTP头中自定义的属性里。通过<code>XMLHttpRequest</code>这个类，可以一次性给所有该类请求加上csrftoken这个HTTP头属性，并把token值放入其中。这样解决了前一种方法在请求中加入token的不便，同时，通过这个类请求的地址不会被记录到浏览器的地址栏，也不用担心token会通过Referer泄露到其他网站。</p>
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><p>对于普通用户来说，都学习并具备网络安全知识以防御网络攻击是不现实的。但若用户养成良好的上网习惯，则能够很大程度上减少CSRF攻击的危害。例如，用户上网时，不要轻易点击网络论坛、聊天室、即时通讯工具或电子邮件中出现的链接或者图片；及时退出长时间不使用的已登录账户，尤其是系统管理员，应尽量在登出系统的情况下点击未知链接和图片。除此之外，用户还需要在连接互联网的计算机上安装合适的安全防护软件，并及时更新软件厂商发布的特征库，以保持安全软件对最新攻击的实时跟踪。</p>
+<p>另外，现在有一些浏览器插件可以进行简单的防御工作，但是有一些局限性。</p>
+<h3 id="安全设备"><a href="#安全设备" class="headerlink" title="安全设备"></a>安全设备</h3><p>CSRF攻击的本质是攻击者伪造了合法的身份，对系统进行访问。如果能够识别出访问者的伪造身份，也就能识别CSRF攻击。研究发现，有些厂商的安全产品能基于硬件层面对HTTP头部的Referer字段内容进行检查来快速准确的识别CSRF攻击。但是这种方式代价昂贵，一般并不会采用这种防御方案。</p>
+<p>一般而言，最常用的就是采用服务端防御策略。解决办法就是在Form表单加一个hidden field，里面是服务端生成的足够随机数的一个Token，使得黑客猜不到也无法仿照Token。</p>
+</excerpt>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>Title:</span><a href="/2019/10/18/CSRF-1/">CSRF</a></p>
+        <p><span>Author:</span><a href="/" title="Back to Homepage">yearn</a></p>
+        <p><span>Created:</span>2019-10-18, 11:31:41</p>
+        <p><span>Updated:</span>2019-10-20, 13:30:13</p>
+        <p>
+            <span>Full URL:</span><a class="post-url" href="/2019/10/18/CSRF-1/" title="CSRF">https://yearn.online/2019/10/18/CSRF-1/</a>
+            <span class="copy-path" data-clipboard-text="From https://yearn.online/2019/10/18/CSRF-1/　　By yearn" title="Copy Article&#39;s Link &amp; Author"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>License:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"CC BY-NC-SA 4.0"</a> Keep Link &amp; Author if Distribute.
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2019/10/19/CSP绕过思路及总结/">
+                    CSP绕过思路及总结
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2019/10/17/PCRE绕过/">
+                    PCRE绕过
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、CSRF是什么"><span class="toc-number">1.</span> <span class="toc-text">一、CSRF是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#防御"><span class="toc-number">2.</span> <span class="toc-text">防御</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#服务端防御"><span class="toc-number">2.1.</span> <span class="toc-text">服务端防御</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-验证HTTP-Referer字段"><span class="toc-number">2.1.1.</span> <span class="toc-text">1. 验证HTTP Referer字段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-在请求地址中添加token并验证"><span class="toc-number">2.1.2.</span> <span class="toc-text">2. 在请求地址中添加token并验证</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-在HTTP头中自定义属性并验证"><span class="toc-number">2.1.3.</span> <span class="toc-text">3. 在HTTP头中自定义属性并验证</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#客户端"><span class="toc-number">2.2.</span> <span class="toc-text">客户端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安全设备"><span class="toc-number">2.3.</span> <span class="toc-text">安全设备</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="Hide"  title="Show or Hide Table of Contents">
+
+    <script>
+        yiliaConfig.toc = ["Hide", "Show", !!"true"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"CSRF　| 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2019/10/18/CSRF-1/" data-title="CSRF" data-url="https://yearn.online/2019/10/18/CSRF-1/"></div>
+    <script>
+        var duoshuoQuery = {short_name:""};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/10/19/CSP绕过思路及总结/" title="Pre: CSP绕过思路及总结">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="Mini Archives"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/10/17/PCRE绕过/" title="Next: PCRE绕过">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/11/02/PHP远程代码执行漏洞预警（CVE-2019-11043）/">PHP远程代码执行漏洞预警（CVE-2019-11043）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/01/变量覆盖漏洞-1/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/30/XXE-实体注入 -1/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/29/XXE漏洞(CVE-2019-2888)分析/">WebLogic EJBTaglibDescriptor XXE漏洞(CVE-2019-2888)分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/28/SSRF-服务器端请求伪造-1/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/26/探究if条件语句引发的两个Web漏洞/">探究if条件语句引发的两个Web漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/25/文件上传漏洞-解析、验证伪造三/">文件上传漏洞----解析、验证伪造 三</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/文件上传漏洞-解析、验证伪造二/">文件上传漏洞----解析、验证伪造 二</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/22/WordPress =5.2.3/">WordPress <=5.2.3：如何查看未授权文章</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/21/文件上传漏洞-解析、验证伪造一/">文件上传漏洞----解析、验证、伪造 一</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/19/CSP绕过思路及总结/">CSP绕过思路及总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/18/CSRF-1/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/PCRE绕过/">PCRE绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/16/Dom-Based-XSS-1/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/15/储存型XSS-1/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/反序列化导致任意代码执行/">Typecho install.php 反序列化导致任意代码执行</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/XSS的原理分析与解剖-1/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Linux提权/">Linux提权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Oracle注入-—-报错注入/">Oracle注入 — 报错注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/08/MSSQL注入-—-反弹注入/">MSSQL注入 — 反弹注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/06/MySQL注入-—-Dns-注入/">MySQL注入 — Dns 注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/03/通过Shodan发现目标应用Marathon服务的RCE漏洞/">通过Shodan发现目标应用Marathon服务的RCE漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/DNS隧道流量分析/">DNS隧道流量分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/Acccess偏移注入-1/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/WordPress插件中的XSS漏洞的复现分析与利用/">WordPress插件中的XSS漏洞的复现分析与利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/宽字节注入-1/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/25/盲注-1/">盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/MS08-067如何利用/">MS08_067如何利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/POST注入-HEAD注入/">POST注入/HEAD注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/SQL注入的原理分析/">SQL注入的原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/21/正则表达式/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/20/后端基础SQL—高级查询与子查询/">后端基础SQL—高级查询与子查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/无需登录绕过waf可union-select跨表查询/">无需登录绕过waf可union-select跨表查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/waf/">waf</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/01/Sql注入 - 0day审计案例/">Sql注入 - 0day审计案例</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/28/支付漏洞/">支付漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/平行越权、垂直越权/">平行越权、垂直越权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/验证码绕过、密码找回漏洞/">验证码绕过、密码找回漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/unserialize反序列化漏洞/">unserialize反序列化漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/本地包含与远程包含/">本地包含与远程包含</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/23/变量覆盖漏洞/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/21/SSRF-服务器端请求伪造/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/XXE-实体注入/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/文件上传漏洞-解析、验证伪造（三）/">文件上传漏洞----解析、验证伪造（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/18/文件上传漏洞-解析、验证伪造（二）/">文件上传漏洞----解析、验证伪造（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/09/文件上传漏洞-解析、验证伪造（一）/">文件上传漏洞----解析、验证、伪造（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/08/CSRF/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/02/Dom-Based-XSS/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/01/储存型XSS/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/28/XSS的原理分析与解剖/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/27/Oracle报错注入/">Oracle注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/26/MSQL反弹注入0-0/">MSQL反弹注入0.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/25/Acccess偏移注入/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/MYSQL-Dns注入/">MYSQL-Dns注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/宽字节注入/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/盲注/">MYSQL注入天书之盲注讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/POST注入原理分分析/">POST注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/sql注入原理分析/">sql注入原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/正则小试牛刀/">正则小试牛刀</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/测试哦！/">测试哦！</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019 yearn
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="A fast, simple &amp; powerful blog framework">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="Another simple and elegant theme for Hexo  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="Site Visitors"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>|</span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="Page Hits"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+</footer>
+    </div>
+    
+    <script src="/js/GithubRepoWidget.js"></script>
+
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="Back to Top"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="Comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="Go to Bottom"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+             github: ".github-widget a", 
+             title: "a.article-title, .article-more-link a", 
+             post: ".article-entry a[href], .copyright a[href]", 
+             tags: ".article-tag a", 
+             categories: ".article-category a, a.tag-list-link", 
+             articleNav: "#article-nav a, #post-nav-button a", 
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+             menu: ".header-menu a", 
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?0c58a1486de42ac6cc1c59c7d98ae887"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":150},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

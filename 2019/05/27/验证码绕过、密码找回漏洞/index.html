@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="yearn">
+
+
+
+<meta name="keywords" content="黑夜的柒佰">
+<meta property="og:type" content="article">
+<meta property="og:title" content="验证码绕过、密码找回漏洞">
+<meta property="og:url" content="https://yearn.online/2019/05/27/验证码绕过、密码找回漏洞/index.html">
+<meta property="og:site_name" content="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://raw.githubusercontent.com/yearnming/yearnming.github.io/master/img/验证码02.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/yearnming/yearnming.github.io/master/img/验证码03.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/yearnming/yearnming.github.io/master/img/验证码05.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/yearnming/yearnming.github.io/master/img/验证码04.png">
+<meta property="og:updated_time" content="2019-06-18T03:11:24.736Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="验证码绕过、密码找回漏洞">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/yearnming/yearnming.github.io/master/img/验证码02.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>验证码绕过、密码找回漏洞 | 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?true";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">yearn</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>Menu</li>
+                        <li>Tags</li>
+                        
+                        <li>Friends</li>
+                        
+                        
+                        <li>About Me</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/0day/">0day</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/benbenben/">benbenben</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/waf/">waf</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/今天很沙漠/">今天很沙漠</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/冷淡/">冷淡</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/南岸/">南岸</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/啊哈哈/">啊哈哈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大雨连绵/">大雨连绵</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气不错，就是眼睛睁不开/">天气不错，就是眼睛睁不开</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气好呀/">天气好呀</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/天气真好/">天气真好</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很棒/">就很棒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/就很烦/">就很烦</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/打字很累/">打字很累</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/无聊/">无聊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/春困/">春困</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/暗/">暗</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漏洞/">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/漫步/">漫步</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/黑夜的柒佰/">黑夜的柒佰</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://xiaoleng.space/">xiaoleng</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于web</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">yearn</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">yearn</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:1925150398@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/yearnming" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="Tags" friends="Friends" about="About Me"/>
+</nav>
+      <div class="body-wrap"><article id="post-验证码绕过、密码找回漏洞" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/05/27/验证码绕过、密码找回漏洞/" class="article-date">
+      <time datetime="2019-05-27T11:00:04.000Z" itemprop="datePublished">2019-05-27</time>
+</a>
+
+
+
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      验证码绕过、密码找回漏洞
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/黑夜的柒佰/">黑夜的柒佰</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <excerpt in index> 
+
+<ul>
+<li><a id="more"></a>
+<the rest of contents文>
+
+</the></li>
+</ul>
+<h1 id="验证码作用"><a href="#验证码作用" class="headerlink" title="验证码作用"></a><strong>验证码作用</strong></h1><p><strong>验证码（CAPTCHA）是“Completely Automated Public Turing test to tell Computers and Humans Apart”（全自动区分<a href="https://baike.baidu.com/item/%E8%AE%A1%E7%AE%97%E6%9C%BA" target="_blank" rel="noopener">计算机</a>和人类的<a href="https://baike.baidu.com/item/%E5%9B%BE%E7%81%B5%E6%B5%8B%E8%AF%95" target="_blank" rel="noopener">图灵测试</a>）的缩写，是一种区分用户是计算机还是人的公共全自动<a href="https://baike.baidu.com/item/%E7%A8%8B%E5%BA%8F/71525" target="_blank" rel="noopener">程序</a>。</strong></p>
+<p><strong>可以防止：恶意破解密码、<a href="https://baike.baidu.com/item/%E5%88%B7%E7%A5%A8/6540942" target="_blank" rel="noopener">刷票</a>、论坛灌水，有效防止某个黑客对某一个特定注册用户用特定程序暴力破解方式进行不断的登陆尝试，实际上用验证码是现在很多网站通行的方式，我们利用比较简易的方式实现了这个功能。</strong></p>
+<p><strong>这个问题可以由计算机生成并评判，但是必须只有人类才能解答。由于计算机无法解答CAPTCHA的问题，所以回答出问题的用户就可以被认为是人类。</strong></p>
+<h2 id="分类："><a href="#分类：" class="headerlink" title="分类："></a><strong>分类：</strong></h2><ul>
+<li><h5 id="Gif动画验证码"><a href="#Gif动画验证码" class="headerlink" title="Gif动画验证码"></a><strong>Gif动画验证码</strong></h5></li>
+<li><h5 id="手机短信验证码"><a href="#手机短信验证码" class="headerlink" title="手机短信验证码"></a><strong>手机短信验证码</strong></h5></li>
+<li><h5 id="手机语音验证码"><a href="#手机语音验证码" class="headerlink" title="手机语音验证码"></a><strong>手机语音验证码</strong></h5></li>
+<li><h5 id="视频验证码"><a href="#视频验证码" class="headerlink" title="视频验证码"></a><strong>视频验证码</strong></h5></li>
+</ul>
+<h1 id="验证码绕过的常见姿势"><a href="#验证码绕过的常见姿势" class="headerlink" title="验证码绕过的常见姿势"></a><strong>验证码绕过的常见姿势</strong></h1><h3 id="1-验证码不刷新"><a href="#1-验证码不刷新" class="headerlink" title="1. 验证码不刷新"></a><strong>1. 验证码不刷新</strong></h3><p>　　<strong>导致验证码不刷新的原因是：登录密码错误之后，session中的值没有更新，验证码不变。验证码不刷新通常有以下两种情况：无条件不刷新、有条件不刷新。</strong></p>
+<h4 id="1-1无条件不刷新"><a href="#1-1无条件不刷新" class="headerlink" title="　　1.1无条件不刷新"></a>　　<strong>1.1无条件不刷新</strong></h4><p>　　<strong>无条件不刷新是指在某一时间段内，无论登录失败多少次，只要不刷新页面，就可以无限次的使用同一个验证码来对一个或多个用户帐号进行暴力猜解。</strong></p>
+<h4 id="1-2有条件不刷新"><a href="#1-2有条件不刷新" class="headerlink" title="　　1.2有条件不刷新"></a>　　<strong>1.2有条件不刷新</strong></h4><p>　　<strong>有条件不刷新多见于如下情况：登录失败之后，系统会打开一个新页面或者弹出一个新的警告窗口，提示用户登录失败，点击确定后返回登录界面且验证码刷新。这种情况下，只要我们不关闭新窗口或弹窗，配合使用Burpsuite的intruder模块就可以进行暴力破解了。</strong></p>
+<h3 id="2-验证码前端可获取"><a href="#2-验证码前端可获取" class="headerlink" title="2.验证码前端可获取"></a><strong>2.验证码前端可获取</strong></h3><p>　　<strong>这种情况在早期的一些网站中比较常见，主要是因为程序员在写代码的时候安全意识不足导致的。验证码通常会被他们隐藏在网站的源码中或者高级一点的隐藏在请求的Cookie中，但这两种情况都可以被攻击者轻松绕过。</strong></p>
+<h4 id="2-1验证码隐藏在源码中"><a href="#2-1验证码隐藏在源码中" class="headerlink" title="　　2.1验证码隐藏在源码中"></a>　　<strong>2.1验证码隐藏在源码中</strong></h4><p>　　<strong>验证这种情况很简单，我们只需要记住验证码，然后右键打开网站源代码，Ctrl+F搜索，输入刚才的验证码，如果可以成功匹配到，那恭喜你，接下来就可以写工具，提取源码中的验证码并将其放入每次请求的报文中，来进行帐号破解，这里推荐使用python。</strong></p>
+<h4 id="2-2验证码隐藏在Cookie中"><a href="#2-2验证码隐藏在Cookie中" class="headerlink" title="　　2.2验证码隐藏在Cookie中"></a>　　<strong>2.2验证码隐藏在Cookie中</strong></h4><p>　　<strong>这种情况，我们可以在提交登录的时候抓包，然后分析一下包中的Cookie字段，看看其中有没有相匹配的验证码，或者是经过了一些简单加密后的验证码。</strong></p>
+<h3 id="3-验证码空值绕过"><a href="#3-验证码空值绕过" class="headerlink" title="3. 验证码空值绕过"></a><strong>3. 验证码空值绕过</strong></h3><p>　　<strong>验证码空值绕过，是在日常的<a href="javascript:;" target="_blank" rel="noopener">渗透测试</a>中很容易被我们忽略的一点，实际应用中我们可以通过直接删除验证码参数或者Cookie中的一些值来绕过判断，进行暴力破解。</strong></p>
+<h3 id="4-验证码易识别"><a href="#4-验证码易识别" class="headerlink" title="4. 验证码易识别"></a><strong>4. 验证码易识别</strong></h3><p>　　<strong>在平常的漏洞挖掘过程中，如果我们发现登录的验证码非常简单且易于识别，那我们就可以尝试使用自动化工具来进行登录破解了，如PKAV的HTTP Fuzzer。</strong></p>
+<h3 id="5-存在无验证码页面"><a href="#5-存在无验证码页面" class="headerlink" title="5. 存在无验证码页面"></a><strong>5. 存在无验证码页面</strong></h3><p>　　<strong>经过测试，如果我们发现网站验证码自身并不存在缺陷，那我们接下来就可以尝试寻找一些其他的登录页面或接口来尝试暴力破解。</strong></p>
+<h4 id="5-1隐藏的页面"><a href="#5-1隐藏的页面" class="headerlink" title="　　5.1隐藏的页面"></a>　　<strong>5.1隐藏的页面</strong></h4><p>　　<strong>这种页面通常是留给测试人员使用的，或者是一些忘记删除的老界面，利用的前提是该界面依旧可用，一般情况下，我们可以通过扫描器来发现这种页面。</strong></p>
+<h4 id="5-2-微信公众号、APP登录页面"><a href="#5-2-微信公众号、APP登录页面" class="headerlink" title="　　5.2 微信公众号、APP登录页面"></a>　　<strong>5.2 微信公众号、APP登录页面</strong></h4><p>　　<strong>很多网站的<a href="javascript:;" target="_blank" rel="noopener">web</a>登录页面已经做的相当完善了，但是却在微信公众后的绑定接口或者是APP的登录界面上面栽了跟头，在渗透测试的过程中，一定不要忘了对公众号和APP的测试。</strong></p>
+<h3 id="6-其他绕过方法"><a href="#6-其他绕过方法" class="headerlink" title="6. 其他绕过方法"></a><strong>6. 其他绕过方法</strong></h3><h4 id="6-1万能验证码"><a href="#6-1万能验证码" class="headerlink" title="　　6.1万能验证码"></a>　　<strong>6.1万能验证码</strong></h4><p>　　<strong>渗透测试的过程中，有时候会出现这种情况，系统存在一个万能验证码，如000000，只要输入万能验证码，就可以无视验证码进行暴力破解。</strong></p>
+<h4 id="6-2验证码无效"><a href="#6-2验证码无效" class="headerlink" title="　　6.2验证码无效"></a>　　<strong>6.2验证码无效</strong></h4><p>　　<strong>这种情况下，无论我们输入什么数据，验证码都会判断通过，验证码形同虚设，这种情况我只遇到过一次。</strong></p>
+<h4 id="6-3验证码数量有限"><a href="#6-3验证码数量有限" class="headerlink" title="　　6.3验证码数量有限"></a>　　<strong>6.3验证码数量有限</strong></h4><p>　　<strong>多见于计算类型的验证码，如1+8=？，这种类型的验证码严格意义上来说不能叫做验证码，多刷新几次验证码，我们可能会发现系统中的算数题目只有那么几道，这种情况下只要将验证码全部下载下来，生成一个md5库，然后将前端生成的验证码与本地文件进行对比即可。</strong></p>
+<h1 id="密码找回漏洞"><a href="#密码找回漏洞" class="headerlink" title="密码找回漏洞"></a><strong>密码找回漏洞</strong></h1><p><strong>有一类验证码，他并不是区分用户是计算机还是人类的公共全自动程序，他是用来证明你身份的，比如你登陆微信，支付宝，支持短信验证码登陆，想这类验证码他实际上是用来区分你的身份的。</strong></p>
+<p><strong>当你QQ密码忘记密码的时候，你需要找回密码，然后他要求把APP显示的动态密码填入框里面，一般而言手机验证码时间都有5-30分钟，如果他没有做尝试限制的话，可以尝试进行穷举，然后直接跑出验证码就修改他人密码。</strong></p>
+<p><strong>第一种就是找密码，往邮箱发明文密码的密码或者验证码（手机短信验证码就是往你手机号码发验证码）通过这样的方法来判断是否是本人</strong></p>
+<p><strong>第二种发送一种重置密码的链接到邮箱</strong></p>
+<p><strong>这样就可能出现一下几种漏洞</strong></p>
+<ol>
+<li><strong>验证码发送后的前端返回</strong></li>
+<li><strong>验证码可控</strong></li>
+<li><strong>直接修改密码页面</strong></li>
+<li><strong>缺失的身份认证–&gt;绑定别人的账号到自己手机</strong></li>
+<li><strong>越权漏洞–&gt;自己验证码通过改包然后修改他们密码</strong></li>
+</ol>
+<p><strong>这里利用掌控者靶场</strong></p>
+<p><strong><img src="https://raw.githubusercontent.com/yearnming/yearnming.github.io/master/img/验证码02.png" alt="躲起来了"></strong></p>
+<p><strong><img src="https://raw.githubusercontent.com/yearnming/yearnming.github.io/master/img/验证码03.png" alt="躲起来了"></strong></p>
+<p><strong><img src="https://raw.githubusercontent.com/yearnming/yearnming.github.io/master/img/验证码05.png" alt="躲起来了"></strong></p>
+<p><strong><img src="https://raw.githubusercontent.com/yearnming/yearnming.github.io/master/img/验证码04.png" alt="躲起来了"></strong></p>
+</excerpt>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>Title:</span><a href="/2019/05/27/验证码绕过、密码找回漏洞/">验证码绕过、密码找回漏洞</a></p>
+        <p><span>Author:</span><a href="/" title="Back to Homepage">yearn</a></p>
+        <p><span>Created:</span>2019-05-27, 19:00:04</p>
+        <p><span>Updated:</span>2019-06-18, 11:11:24</p>
+        <p>
+            <span>Full URL:</span><a class="post-url" href="/2019/05/27/验证码绕过、密码找回漏洞/" title="验证码绕过、密码找回漏洞">https://yearn.online/2019/05/27/验证码绕过、密码找回漏洞/</a>
+            <span class="copy-path" data-clipboard-text="From https://yearn.online/2019/05/27/验证码绕过、密码找回漏洞/　　By yearn" title="Copy Article&#39;s Link &amp; Author"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>License:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"CC BY-NC-SA 4.0"</a> Keep Link &amp; Author if Distribute.
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2019/05/27/平行越权、垂直越权/">
+                    平行越权、垂直越权
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2019/05/27/unserialize反序列化漏洞/">
+                    unserialize反序列化漏洞
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#验证码作用"><span class="toc-number">1.</span> <span class="toc-text">验证码作用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#分类："><span class="toc-number">1.1.</span> <span class="toc-text">分类：</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Gif动画验证码"><span class="toc-number">1.1.0.0.1.</span> <span class="toc-text">Gif动画验证码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#手机短信验证码"><span class="toc-number">1.1.0.0.2.</span> <span class="toc-text">手机短信验证码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#手机语音验证码"><span class="toc-number">1.1.0.0.3.</span> <span class="toc-text">手机语音验证码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#视频验证码"><span class="toc-number">1.1.0.0.4.</span> <span class="toc-text">视频验证码</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#验证码绕过的常见姿势"><span class="toc-number">2.</span> <span class="toc-text">验证码绕过的常见姿势</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-验证码不刷新"><span class="toc-number">2.0.1.</span> <span class="toc-text">1. 验证码不刷新</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1无条件不刷新"><span class="toc-number">2.0.1.1.</span> <span class="toc-text">　　1.1无条件不刷新</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2有条件不刷新"><span class="toc-number">2.0.1.2.</span> <span class="toc-text">　　1.2有条件不刷新</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-验证码前端可获取"><span class="toc-number">2.0.2.</span> <span class="toc-text">2.验证码前端可获取</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1验证码隐藏在源码中"><span class="toc-number">2.0.2.1.</span> <span class="toc-text">　　2.1验证码隐藏在源码中</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2验证码隐藏在Cookie中"><span class="toc-number">2.0.2.2.</span> <span class="toc-text">　　2.2验证码隐藏在Cookie中</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-验证码空值绕过"><span class="toc-number">2.0.3.</span> <span class="toc-text">3. 验证码空值绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-验证码易识别"><span class="toc-number">2.0.4.</span> <span class="toc-text">4. 验证码易识别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-存在无验证码页面"><span class="toc-number">2.0.5.</span> <span class="toc-text">5. 存在无验证码页面</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1隐藏的页面"><span class="toc-number">2.0.5.1.</span> <span class="toc-text">　　5.1隐藏的页面</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-微信公众号、APP登录页面"><span class="toc-number">2.0.5.2.</span> <span class="toc-text">　　5.2 微信公众号、APP登录页面</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-其他绕过方法"><span class="toc-number">2.0.6.</span> <span class="toc-text">6. 其他绕过方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#6-1万能验证码"><span class="toc-number">2.0.6.1.</span> <span class="toc-text">　　6.1万能验证码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2验证码无效"><span class="toc-number">2.0.6.2.</span> <span class="toc-text">　　6.2验证码无效</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-3验证码数量有限"><span class="toc-number">2.0.6.3.</span> <span class="toc-text">　　6.3验证码数量有限</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#密码找回漏洞"><span class="toc-number">3.</span> <span class="toc-text">密码找回漏洞</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="Hide"  title="Show or Hide Table of Contents">
+
+    <script>
+        yiliaConfig.toc = ["Hide", "Show", !!"true"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"验证码绕过、密码找回漏洞　| 绝大部分的不公平来源于自身的能力，别忘记你的情敌正在努力　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2019/05/27/验证码绕过、密码找回漏洞/" data-title="验证码绕过、密码找回漏洞" data-url="https://yearn.online/2019/05/27/验证码绕过、密码找回漏洞/"></div>
+    <script>
+        var duoshuoQuery = {short_name:""};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/05/27/平行越权、垂直越权/" title="Pre: 平行越权、垂直越权">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="Mini Archives"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/05/27/unserialize反序列化漏洞/" title="Next: unserialize反序列化漏洞">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/11/02/PHP远程代码执行漏洞预警（CVE-2019-11043）/">PHP远程代码执行漏洞预警（CVE-2019-11043）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/01/变量覆盖漏洞-1/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/30/XXE-实体注入 -1/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/29/XXE漏洞(CVE-2019-2888)分析/">WebLogic EJBTaglibDescriptor XXE漏洞(CVE-2019-2888)分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/28/SSRF-服务器端请求伪造-1/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/26/探究if条件语句引发的两个Web漏洞/">探究if条件语句引发的两个Web漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/25/文件上传漏洞-解析、验证伪造三/">文件上传漏洞----解析、验证伪造 三</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/文件上传漏洞-解析、验证伪造二/">文件上传漏洞----解析、验证伪造 二</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/22/WordPress =5.2.3/">WordPress <=5.2.3：如何查看未授权文章</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/21/文件上传漏洞-解析、验证伪造一/">文件上传漏洞----解析、验证、伪造 一</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/19/CSP绕过思路及总结/">CSP绕过思路及总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/18/CSRF-1/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/PCRE绕过/">PCRE绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/16/Dom-Based-XSS-1/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/15/储存型XSS-1/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/反序列化导致任意代码执行/">Typecho install.php 反序列化导致任意代码执行</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/10/XSS的原理分析与解剖-1/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Linux提权/">Linux提权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/09/Oracle注入-—-报错注入/">Oracle注入 — 报错注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/08/MSSQL注入-—-反弹注入/">MSSQL注入 — 反弹注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/06/MySQL注入-—-Dns-注入/">MySQL注入 — Dns 注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/03/通过Shodan发现目标应用Marathon服务的RCE漏洞/">通过Shodan发现目标应用Marathon服务的RCE漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/DNS隧道流量分析/">DNS隧道流量分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/01/Acccess偏移注入-1/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/WordPress插件中的XSS漏洞的复现分析与利用/">WordPress插件中的XSS漏洞的复现分析与利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/26/宽字节注入-1/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/25/盲注-1/">盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/MS08-067如何利用/">MS08_067如何利用</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/24/POST注入-HEAD注入/">POST注入/HEAD注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/22/SQL注入的原理分析/">SQL注入的原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/21/正则表达式/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/20/后端基础SQL—高级查询与子查询/">后端基础SQL—高级查询与子查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/无需登录绕过waf可union-select跨表查询/">无需登录绕过waf可union-select跨表查询</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/07/waf/">waf</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/01/Sql注入 - 0day审计案例/">Sql注入 - 0day审计案例</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/28/支付漏洞/">支付漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/平行越权、垂直越权/">平行越权、垂直越权</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/验证码绕过、密码找回漏洞/">验证码绕过、密码找回漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/unserialize反序列化漏洞/">unserialize反序列化漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/27/本地包含与远程包含/">本地包含与远程包含</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/23/变量覆盖漏洞/">变量覆盖漏洞</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/21/SSRF-服务器端请求伪造/">SSRF - 服务器端请求伪造</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/XXE-实体注入/">XXE - 实体注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/19/文件上传漏洞-解析、验证伪造（三）/">文件上传漏洞----解析、验证伪造（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/18/文件上传漏洞-解析、验证伪造（二）/">文件上传漏洞----解析、验证伪造（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/09/文件上传漏洞-解析、验证伪造（一）/">文件上传漏洞----解析、验证、伪造（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/08/CSRF/">CSRF</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/02/Dom-Based-XSS/">Dom Based XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/01/储存型XSS/">储存型XSS</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/28/XSS的原理分析与解剖/">XSS的原理分析与解剖</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/27/Oracle报错注入/">Oracle注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/26/MSQL反弹注入0-0/">MSQL反弹注入0.0</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/25/Acccess偏移注入/">Acccess偏移注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/MYSQL-Dns注入/">MYSQL-Dns注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/宽字节注入/">宽字节注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/盲注/">MYSQL注入天书之盲注讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/22/POST注入原理分分析/">POST注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/sql注入原理分析/">sql注入原理分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/正则小试牛刀/">正则小试牛刀</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/03/21/测试哦！/">测试哦！</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019 yearn
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="A fast, simple &amp; powerful blog framework">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="Another simple and elegant theme for Hexo  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="Site Visitors"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>|</span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="Page Hits"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+
+</footer>
+    </div>
+    
+    <script src="/js/GithubRepoWidget.js"></script>
+
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="Back to Top"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="Comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="Go to Bottom"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+             github: ".github-widget a", 
+             title: "a.article-title, .article-more-link a", 
+             post: ".article-entry a[href], .copyright a[href]", 
+             tags: ".article-tag a", 
+             categories: ".article-category a, a.tag-list-link", 
+             articleNav: "#article-nav a, #post-nav-button a", 
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+             menu: ".header-menu a", 
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?0c58a1486de42ac6cc1c59c7d98ae887"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":150},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
